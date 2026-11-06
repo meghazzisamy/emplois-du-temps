@@ -1,0 +1,11 @@
+{
+  "appId": "com.samy.emploidutemps",
+  "appName": "Emploi du temps",
+  "webDir": "www",
+  "plugins": {
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_notify",
+      "iconColor": "#0F3D5E"
+    }
+  }
+}
