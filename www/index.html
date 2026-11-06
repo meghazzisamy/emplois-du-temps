@@ -280,6 +280,7 @@ details.cat .body{padding:0 14px 14px;border-top:1px solid var(--soft)}
 .inrow .grow{flex:1}
 .inrow .btn{background:var(--ink);color:#fff}
 .inrow .btn.del{background:#fee2e2;color:#b91c1c}
+.cfsel{padding:8px;border:1px solid var(--line);border-radius:10px;font:inherit;font-size:14px;background:#fff}
 .setrow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-top:1px solid var(--line);font-size:14px}
 .setrow:first-child{border-top:0}
 .setrow input{width:110px;padding:8px;border:1px solid var(--line);border-radius:10px;font:inherit;font-size:14px;text-align:center}
@@ -449,6 +450,8 @@ nav.tabs button.on{color:var(--accent)}
 .focus.brk{background:linear-gradient(160deg,#064e3b,#0d9488)}
 .toast{position:fixed;left:50%;bottom:80px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:9px 15px;border-radius:999px;font-size:13.5px;font-weight:600;opacity:0;transition:opacity .2s;pointer-events:none;z-index:20}
 .toast.show{opacity:1}
+.toast.act{pointer-events:auto;display:flex;align-items:center;gap:10px;white-space:nowrap}
+.toast #tUndo{background:#fff;color:var(--ink);border:0;border-radius:999px;padding:5px 11px;font:inherit;font-size:13px;font-weight:800;cursor:pointer}
 </style>
 </head>
 <body>
@@ -568,7 +571,7 @@ nav.tabs button.on{color:var(--accent)}
     <div class="card" id="subsBox"></div>
     <div class="sec-title">💧 Eau par jour</div>
     <div class="card"><div class="bars" id="wBars"></div></div>
-    <div class="sec-title">🏃 Sport de la semaine</div>
+    <div class="sec-title" id="spBoxT">🏅 Séances détaillées de la semaine</div>
     <div class="card" id="spBox"></div>
     <div class="sec-title">💡 Remarques et conseils</div>
     <div class="card"><ul class="insights" id="insights"></ul></div>
@@ -615,9 +618,7 @@ nav.tabs button.on{color:var(--accent)}
     </div>
     <div class="sec-title">Objectifs</div>
     <div class="card">
-      <div class="setrow"><span>💻 Développement<small>heures par semaine</small></span><input type="number" min="0" step="0.5" id="sDev"></div>
-      <div class="setrow"><span>🏃 Sport<small>séances par semaine</small></span><input type="number" min="0" id="sSport"></div>
-      <div class="setrow"><span>🏃 Sport<small>minutes par semaine (OMS : 150)</small></span><input type="number" min="0" step="10" id="sSportMin"></div>
+      <div class="setrow"><span>📏 Objectifs par activité<small>heures, séances ou minutes par semaine : ouvre la catégorie (plus haut) → « Suivi et objectif »</small></span></div>
       <div class="setrow"><span>💧 Eau<small>verres par jour</small></span><input type="number" min="1" id="sWater"></div>
       <div class="setrow"><span>💧 Taille d'un verre<small>en millilitres</small></span><input type="number" min="50" step="50" id="sGlass"></div>
       <div class="setrow" style="display:block"><span>😴 Jours de repos<small>pas de rattrapage ni de rappel du matin ces jours-là</small></span><div class="dchips" id="sRest" style="margin:8px 0 0"></div></div>
@@ -761,6 +762,7 @@ nav.tabs button.on{color:var(--accent)}
     <div class="mtl-h"><span>6h</span><span>9h</span><span>12h</span><span>15h</span><span>18h</span><span>21h</span><span>24h</span></div>
     <div class="mtl" id="mTL"></div>
     <div class="rmsg info" id="mMsg" style="margin:0 0 10px"></div>
+    <label class="setrow" id="mRepRow" style="display:none;border:0;padding:0 0 10px"><span>🔁 Remplacer ce qui est prévu à ce moment<small>les activités barrées iront dans « Rattraper ». Sinon, les deux sont gardées.</small></span><input type="checkbox" id="mRep" style="width:24px;height:24px;accent-color:var(--ko)"></label>
     <div class="row"><label class="field">Activité<input type="text" id="mText" dir="auto" placeholder="ex. Mission client à Oran"></label></div>
     <div class="row"><label class="field">Type<select id="mType"></select></label><label class="field">Catégorie / projet<select id="mSub"></select></label></div>
     <p class="hint" id="mHint"></p>
@@ -781,7 +783,7 @@ nav.tabs button.on{color:var(--accent)}
     <button data-q="mis"><span>🚗</span>Mission<small>sortie entreprise</small></button>
     <button data-q="note"><span>📌</span>Note rapide<small>à ne pas oublier</small></button>
     <button data-q="bilan"><span>✅</span>Bilan du jour<small>cocher ce que j'ai fait</small></button>
-    <button data-q="sport"><span>🏃</span>Sport fait<small>séance hors planning</small></button>
+    <button data-q="sport"><span>🏅</span>Séance faite<small>hors planning (sport…)</small></button>
     <button data-q="eau"><span>💧</span>+1 verre d'eau<small>suivi de l'hydratation</small></button>
   </div>
   <div class="actions"><button class="btn cancel" data-close="qModal">Fermer</button><button class="btn cancel" data-q="add">➕ Activité détaillée</button></div>
@@ -883,6 +885,19 @@ const DEF_TYPES={
 };
 const DEF_SETTINGS={devGoal:12,sportGoal:2,sportMin:150,water:8,glassMl:250,rest:[5],bilanAt:"20:00",start:"2026-11-08",notifOn:true,notifLead:10,morningAt:"07:00",wRemOn:false,wEvery:90,wFrom:"08:00",wTo:"20:00"};
 const isRest=dow=>(config.settings.rest||[]).includes(dow);
+// ---- catégories : unités et valeurs ----
+const UNIT_L={h:"heures",min:"minutes",sess:"séances"};
+const emptyCat=()=>({planH:0,gotH:0,planN:0,doneN:0,min:0});
+const catVal=(c,u)=>u==="sess"?Math.round(c.doneN*10)/10:u==="min"?Math.round(c.min):Math.round(c.gotH*10)/10;
+const catPlan=(c,u)=>u==="sess"?c.planN:u==="min"?Math.round(c.planH*60):Math.round(c.planH*10)/10;
+const fmtCat=(v,u)=>u==="h"?fmtH(v):u==="min"?Math.round(v)+" min":String(Math.round(v*10)/10).replace(".",",")+" séance"+(v>1?"s":"");
+const catGoal=(k,plan)=>{const T=TY(k);return T.goal>0?T.goal:plan;};
+// minutes réellement pratiquées d'une activité (détail de séance si noté, sinon durée × réalisation)
+const actMin=(a,o,w)=>{const T=TY(a.k),d=T.detail==="effort"?o&&o.sport:T.detail==="learn"?o&&o.lang:null;return d&&d.min?d.min:Math.round(dur(a)*60*w);};
+const effortCat=()=>(Object.entries(config.types).find(([k,T])=>T.detail==="effort")||["sport"])[0];
+// libellé de la sous-catégorie (réglable par catégorie : T.subL)
+const subLabel=k=>{const T=TY(k);return T.subL||(T.detail==="learn"?"Quel sujet ?":T.detail==="effort"?"Type d'activité":"Catégorie / projet");};
+const mainCats=()=>Object.entries(config.types).filter(([k,T])=>T.track&&T.main).map(([k])=>k);
 function TY(k){return (config&&config.types&&config.types[k])||{n:k,e:"•",c:"#6b7280",track:true,subs:[],lib:[]};}
 function guessSub(a){if(a.k==="cours")return /1م/.test(a.t)?"1ère année":/3م/.test(a.t)?"3ème année":"";if(a.k==="prep")return "Préparer les cours";if(a.k==="anglais")return "Anglais";if(a.k==="repos"&&/famille/i.test(a.t))return "Famille";return "";}
 function ensureConfig(){
@@ -896,7 +911,7 @@ function ensureConfig(){
   // v9 : objectifs (jour, semaine, mois, trimestre, année) — quelques indicateurs de départ, modifiables
   if(!Array.isArray(config.goals)){const G=config.settings,R=(level,metric,target,title)=>({id:uid(),level,rec:true,kind:"metric",metric,target,title,log:{},steps:[],cat:"",parent:"",note:""});
     config.goals=[R("day","water",G.water,"Boire assez d'eau"),R("day","top",1,"Finir ma tâche n°1"),
-      R("week","dev",G.devGoal,"Heures de développement"),R("week","sportN",G.sportGoal,"Séances de sport"),R("week","sportMin",G.sportMin,"Minutes de sport"),
+      R("week","cat:dev",G.devGoal,"Heures de développement"),R("week","cat:sport",G.sportGoal,"Séances de sport"),R("week","catmin:sport",G.sportMin,"Minutes de sport"),
       R("month","pct",80,"Respecter mon planning"),R("month","bilan",20,"Faire mon bilan chaque soir")];}
   if(!config.settings.m7&&config.types.imprevu){const T=config.types.imprevu;["Rendez-vous","Réunion"].forEach(x=>{if(!T.subs.includes(x))T.subs.unshift(x);});if(!T.lib.length)T.lib=[...DEF_TYPES.imprevu.lib];config.settings.m7=1;}
   // v8 : « Anglais » devient « Langues » (la langue se choisit dans le créneau)
@@ -906,6 +921,19 @@ function ensureConfig(){
     for(let d=0;d<7;d++)(config.weekly[d]||[]).forEach(fix);(config.events||[]).forEach(fix);config.settings.m8=1;}
   // v10 : le repos n'est plus à noter dans le bilan (réactivable dans Paramètres → catégorie)
   if(!config.settings.m10){if(config.types.repos)config.types.repos.track=false;config.settings.m10=1;}
+  // v11 : les activités ponctuelles existantes gardent leur comportement (elles remplaçaient ce qui était prévu)
+  if(!config.settings.m11){(config.events||[]).forEach(e=>{if(e.rep===undefined&&e.k!=="imprevu"&&e.k!=="mission")e.rep=true;});config.settings.m11=1;}
+  if(config.settings.langMin===undefined)config.settings.langMin=150;
+  // v12 : catégories intelligentes — suivi (h / min / séances), objectif par semaine (0 = ce qui est prévu),
+  // détails de séance (effort / apprentissage), suivi dans l'analyse, travail principal, série 🔥
+  if(!config.settings.m12){const G=config.settings,P={cours:{unit:"sess",main:true,subL:"Niveau / classe"},prep:{unit:"h",main:true},dev:{unit:"h",goal:G.devGoal||12,main:true,streak:true,subL:"Projet"},
+      sport:{unit:"sess",goal:G.sportGoal||2,goalMin:G.sportMin||150,detail:"effort",subL:"Type de sport"},anglais:{unit:"min",goal:G.langMin||150,detail:"learn",streak:true,subL:"🗣️ Quelle langue ?"},mission:{unit:"sess",kpi:false},imprevu:{kpi:false}};
+    for(const[k,d]of Object.entries(P))if(config.types[k]&&d.subL&&!config.types[k].subL)config.types[k].subL=d.subL;
+    for(const[k,T]of Object.entries(config.types)){const d=P[k]||{};if(!T.unit)T.unit=d.unit||"h";if(T.goal===undefined)T.goal=d.goal||0;if(T.goalMin===undefined)T.goalMin=d.goalMin||0;
+      if(!T.detail)T.detail=d.detail||"none";if(T.kpi===undefined)T.kpi=d.kpi!==false;if(T.main===undefined)T.main=!!d.main;if(T.streak===undefined)T.streak=!!d.streak;}
+    config.settings.m12=1;}
+  for(const T of Object.values(config.types)){if(!T.unit)T.unit="h";if(T.goal===undefined)T.goal=0;if(T.goalMin===undefined)T.goalMin=0;if(!T.detail)T.detail="none";
+    if(T.kpi===undefined)T.kpi=true;if(T.main===undefined)T.main=false;if(T.streak===undefined)T.streak=false;}
   if(config.types.anglais&&!config.types.anglais.skills)config.types.anglais.skills=[...DEF_TYPES.anglais.skills];
   for(let d=0;d<7;d++)(config.weekly[d]||[]).forEach(a=>{if(a.sub===undefined)a.sub=guessSub(a);});
   config.events.forEach(e=>{if(e.sub===undefined)e.sub="";});
@@ -1023,10 +1051,12 @@ function snapWeekly(){
   if(config.past.length>40)config.past.splice(0,config.past.length-40);
 }
 const skippedOf=dateStr=>(weeklyFor(dateStr)[parse(dateStr).getDay()]||[]).filter(a=>{const o=occ(dateStr,a.id);return o&&o.skip;});
+const cancels=e=>e.k==="imprevu"||e.k==="mission"||!!e.rep;
 function itemsFor(dateStr){
   const dow=parse(dateStr).getDay();
   const evs=config.events.filter(e=>e.date===dateStr).map(e=>({...e,ev:true}));
-  const wk=(weeklyFor(dateStr)[dow]||[]).filter(a=>{const o=occ(dateStr,a.id);return !(o&&o.skip);}).map(a=>({...a,off:a.k!=="sommeil"&&evs.some(e=>m(e.s)<m(a.e)&&m(e.e)>m(a.s))}));
+  // Seuls les imprévus, les missions et les activités ponctuelles marquées « remplacer » barrent ce qui est prévu
+  const wk=(weeklyFor(dateStr)[dow]||[]).filter(a=>{const o=occ(dateStr,a.id);return !(o&&o.skip);}).map(a=>({...a,off:a.k!=="sommeil"&&evs.some(e=>cancels(e)&&m(e.s)<m(a.e)&&m(e.e)>m(a.s))}));
   return [...wk,...evs].sort((a,b)=>m(a.s)-m(b.s)||(b.ev?1:0)-(a.ev?1:0));
 }
 const findItem=(date,id)=>itemsFor(date).find(a=>a.id===id);
@@ -1065,7 +1095,7 @@ const IN_MORE=["bilan","catch","set","week","wiz"];
 function go(v){view=v;document.querySelectorAll("nav.tabs button").forEach(x=>x.classList.toggle("on",x.dataset.v===v||(IN_MORE.includes(v)&&x.dataset.v==="more")));
   document.querySelectorAll(".view").forEach(x=>x.classList.toggle("on",x.id==="v-"+v));
   if(v==="bilan")pullWeek(wsKey(bDate));if(v==="ana"){pullWeek(aWeek);pullWeek(ymd(addDays(parse(aWeek),-7)));}
-  if(v==="catch"){const t=todayStr();for(let i=-14;i<=7;i+=7)pullWeek(wsKey(ymd(addDays(parse(t),i))));}
+  if(v==="catch"){const t=todayStr();for(let i=-63;i<=7;i+=7)pullWeek(wsKey(ymd(addDays(parse(t),i))));}
   renderAll();if(v==="set")renderSet();window.scrollTo(0,0);}
 
 /* ================= render: planning ================= */
@@ -1080,8 +1110,10 @@ function renderNow(){
   // salutation + résumé du jour
   {const h=nowMin(),p=config.profile||{},nm=p.name?" "+p.name:"";
     const hello=h<12*60?`Bonjour${nm} 👋`:h<18*60?`Bon après-midi${nm}`:`Bonsoir${nm} 🌙`;
-    const its=itemsFor(today).filter(a=>!a.off&&TY(a.k).track&&a.k!=="repos"),by={};its.forEach(a=>{by[a.k]=(by[a.k]||0)+dur(a);});
-    const parts=Object.entries(by).sort((a,b)=>b[1]-a[1]).map(([k,hh])=>{const n=its.filter(a=>a.k===k).length;return k==="cours"?`${TY(k).e} ${n} cours`:`${TY(k).e} ${fmtH(hh)} ${TY(k).n.toLowerCase()}`;});
+    const its=itemsFor(today).filter(a=>!a.off&&TY(a.k).track),by={};its.forEach(a=>{by[a.k]=(by[a.k]||0)+dur(a);});
+    // travail principal d'abord ; chaque catégorie dans son unité (séances, heures ou minutes)
+    const parts=Object.entries(by).sort((a,b)=>(TY(b[0]).main?1:0)-(TY(a[0]).main?1:0)||b[1]-a[1]).map(([k,hh])=>{const T=TY(k),n=its.filter(a=>a.k===k).length;
+      return T.unit==="sess"?`${T.e} ${n} ${T.n.toLowerCase()}`:T.unit==="min"?`${T.e} ${Math.round(hh*60)} min ${T.n.toLowerCase()}`:`${T.e} ${fmtH(hh)} ${T.n.toLowerCase()}`;});
     $("hgHello").textContent=hello;
     $("hgSum").textContent=rest&&!its.length?"😴 Jour de repos : profite, rien de professionnel aujourd'hui 🌿":its.length?"Aujourd'hui : "+parts.slice(0,4).join(" · "):"Rien de prévu aujourd'hui.";}
   // maintenant
@@ -1146,12 +1178,13 @@ function renderList(){
 /* ================= rattraper ================= */
 const CATCH_SKIP=["repos","mission","imprevu"];
 function catchRows(){
-  const t=todayStr();let from=ymd(addDays(parse(t),-14));const to=ymd(addDays(parse(t),7)),rows=[];
+  // jusqu'à 60 jours en arrière (sans remonter avant le début du programme) : rien n'est oublié en silence
+  const t=todayStr(),lim=ymd(addDays(parse(t),-60)),st=config.settings.start;let from=st>lim?st:lim;const to=ymd(addDays(parse(t),7)),rows=[],old=ymd(addDays(parse(t),-14));
   for(let d=parse(from);ymd(d)<=to;d=addDays(d,1)){const k=ymd(d);
     itemsFor(k).forEach(a=>{if(a.k==="sommeil")return;const o=occ(k,a.id);let why=null;
       if(a.off){if(TY(a.k).track&&!CATCH_SKIP.includes(a.k))why="annulé";}
       else if(k<=t&&o&&o.st==="missed")why="pas fait";else if(k<=t&&o&&o.st==="partial")why="à moitié";
-      if(why)rows.push({k,a,why,rs:o&&o.rs});});}
+      if(why)rows.push({k,a,why,rs:o&&o.rs,old:k<old});});}
   return rows;
 }
 const needMin=r=>{let n=(m(r.a.e)-m(r.a.s));if(r.why==="à moitié")n=Math.round(n/2);return Math.max(30,Math.min(120,Math.round(n/15)*15));};
@@ -1172,15 +1205,15 @@ function suggest(N,max){
 }
 function undoneTasks(r){return tasksOf(r.k,r.a).filter(x=>!x.d).map(x=>x.t);}
 function resolve(r,rs){const o=occ(r.k,r.a.id,true);o.rs=rs;touch("weeks/"+wsKey(r.k));}
-function replan(r,sg){
-  const id=uid(),tasks=undoneTasks(r);
-  config.events.push({id,date:sg.k,s:hm(sg.s),e:hm(sg.e),t:"↻ "+r.a.t.replace(/^↻ /,""),k:r.a.k,sub:subOf(r.k,r.a),tpl:tasks.length?tasks:[r.a.t]});
+function replan(r,sg,rep){
+  const id=uid(),tasks=undoneTasks(r),ev={id,date:sg.k,s:hm(sg.s),e:hm(sg.e),t:"↻ "+r.a.t.replace(/^↻ /,""),k:r.a.k,sub:subOf(r.k,r.a),tpl:tasks.length?tasks:[r.a.t]};
+  if(rep)ev.rep=true;config.events.push(ev);
   touch("config");resolve(r,{how:"replan",ev:id,to:`${SHORT[parse(sg.k).getDay()]} ${parse(sg.k).getDate()} · ${hm(sg.s)}`});
 }
 function renderCatch(){
   const rows=catchRows(),open=rows.filter(r=>!r.rs),done=rows.filter(r=>r.rs);
-  const hrs=open.reduce((x,r)=>x+needMin(r)/60,0),dev=open.filter(r=>r.a.k==="dev").reduce((x,r)=>x+needMin(r)/60,0);
-  $("cSum").innerHTML=`<div class="kpi"><div class="k">À rattraper</div><div class="n">${open.length}</div></div><div class="kpi"><div class="k">Temps</div><div class="n">${fmtH(hrs)}</div></div><div class="kpi"><div class="k">Dont dev</div><div class="n">${fmtH(dev)}</div></div>`;
+  const hrs=open.reduce((x,r)=>x+needMin(r)/60,0),mainH=open.filter(r=>TY(r.a.k).main).reduce((x,r)=>x+needMin(r)/60,0);
+  $("cSum").innerHTML=`<div class="kpi"><div class="k">À rattraper</div><div class="n">${open.length}</div></div><div class="kpi"><div class="k">Temps</div><div class="n">${fmtH(hrs)}</div></div><div class="kpi"><div class="k">Dont travail</div><div class="n">${fmtH(mainH)}</div></div>`;
   $("cAuto").style.display=open.length?"":"none";
   $("cList").innerHTML=open.length?open.map((r,i)=>{const T=TY(r.a.k),N=needMin(r),sg=suggest(N),d=parse(r.k),tk=undoneTasks(r);
     r._sg=sg;
@@ -1189,7 +1222,7 @@ function renderCatch(){
       <div class="lab">📅 Créneaux libres proposés</div>
       <div class="sugg">${sg.length?sg.map((x,j)=>{const dd=parse(x.k);return `<button data-i="${i}" data-j="${j}">${x.k===todayStr()?"Aujourd'hui":SHORT[dd.getDay()]+" "+dd.getDate()} · ${hm(x.s)}–${hm(x.e)}${x.rep?'<small>😴 sur un temps de repos</small>':''}</button>`;}).join(""):'<span class="empty">Pas de créneau libre cette semaine.</span>'}</div>
       <div class="cact"><button class="mine" data-mine="${i}">🗓️ Choisir moi-même</button></div>
-      <div class="cact"><button data-merge="${i}">↪ Au prochain ${esc(T.n.toLowerCase().split(" ")[0])}</button><button data-ign="${i}">✓ Ignorer</button></div></div>`;}).join("")
+      <div class="cact"><button data-merge="${i}">↪ Au prochain ${esc(T.n.toLowerCase().split(" ")[0])}</button><button data-ign="${i}">${r.old?"🗑️ Abandonner":"✓ Ignorer"}</button></div>${r.old?`<div class="mt" style="color:var(--part);font-weight:600">⏳ En attente depuis ${Math.round((parse(todayStr())-parse(r.k))/864e5)} jours : replanifie-la ou abandonne-la.</div>`:""}</div>`;}).join("")
     :`<div class="card" style="text-align:center;padding:22px"><div style="font-size:30px">🎉</div><b>Rien à rattraper</b><div class="empty" style="margin-top:4px">Les activités ❌ pas faites, 🌓 à moitié ou annulées par un imprévu apparaîtront ici.</div></div>`;
   $("cList").querySelectorAll(".sugg button").forEach(b=>b.onclick=()=>{const r=open[+b.dataset.i],sg=r._sg[+b.dataset.j];replan(r,sg);renderAll();toast(`📅 Replanifié : ${SHORT[parse(sg.k).getDay()]} ${parse(sg.k).getDate()} · ${hm(sg.s)}`);});
   $("cList").querySelectorAll("[data-merge]").forEach(b=>b.onclick=()=>{const r=open[+b.dataset.merge],n=nextSlot(r.k,r.a);
@@ -1247,13 +1280,13 @@ function drawTL(){
     msg.className="rmsg warn";msg.innerHTML=`😴 Libre, mais tu prends sur : `+soft.map(a=>`${esc(a.t)} ${a.s}–${showT(a.e)}`).join(", ");
     go.disabled=false;go.className="go";go.textContent="Replanifier ici";
   }else{msg.className="rmsg ok";msg.innerHTML=`✅ <b>Libre</b> · ${RP.days[RP.day].l} ${hm(s)}–${hm(e)}`;go.disabled=false;go.className="go";go.textContent="Replanifier ici";}
-  go.onclick=()=>{replan(RP.r,{k,s,e});closeM("rModal");renderAll();
+  go.onclick=()=>{replan(RP.r,{k,s,e},hard.length>0);closeM("rModal");renderAll();
     toast(moved.length?`📅 Replanifié · ${moved.length} activité${moved.length>1?"s":""} déplacée${moved.length>1?"s":""} dans Rattraper`:`📅 Replanifié : ${RP.days[RP.day].l} ${hm(s)}`);};
 }
 
-$("cAuto").onclick=()=>{const open=catchRows().filter(r=>!r.rs);let n=0;
+$("cAuto").onclick=()=>{const open=catchRows().filter(r=>!r.rs),snap=JSON.stringify({c:config,w:weeks});let n=0;
   open.forEach(r=>{const sg=suggest(needMin(r),1)[0];if(sg){replan(r,sg);n++;}});
-  renderAll();toast(n?`✨ ${n} activité${n>1?'s':''} replanifiée${n>1?'s':''}`:"Pas de créneau libre trouvé");};
+  renderAll();if(n)undoToast(`✨ ${n} activité${n>1?'s':''} replanifiée${n>1?'s':''}`,snap);else toast("Pas de créneau libre trouvé");};
 function renderCatchup(){
   const open=catchRows().filter(r=>!r.rs),hrs=open.reduce((x,r)=>x+needMin(r)/60,0),el=$("catchup");
   el.className="clink"+(open.length?"":" ok");
@@ -1269,7 +1302,9 @@ function renderBanner(){
   else{const open=catchRows().filter(r=>!r.rs);
     if(open.length)A={t:`🔄 ${open.length} activité${open.length>1?'s':''} à rattraper`,b:"Voir",fn:()=>go("catch")};
     else{const w=(W(wsKey(t)).water[t])||0,from=8*60,to=21*60,exp=nm<=from?0:Math.floor(G.water*Math.min(1,(nm-from)/(to-from)));
-      if(exp-w>=2)A={t:`💧 ${w} verre${w>1?'s':''} bu${w>1?'s':''} : vise ${exp} à cette heure`,b:"＋1 verre",fn:()=>addWater(t,1)};}}
+      if(exp-w>=2)A={t:`💧 ${w} verre${w>1?'s':''} bu${w>1?'s':''} : vise ${exp} à cette heure`,b:"＋1 verre",fn:()=>addWater(t,1)};
+      else{const ds=typeof daysSinceShare==="function"?daysSinceShare():null;
+        if(ds!=null)A={t:`📤 Sauvegarde hors du téléphone : ${localStorage.getItem(LS_SHARE)?"il y a "+ds+" jours":"jamais faite"}`,b:"Envoyer",fn:()=>$("bkShare").click()};}}}
   b.classList.toggle("on",!!A);if(A){$("eveTxt").textContent=A.t;$("eveGo").textContent=A.b;$("eveGo").onclick=A.fn;}
 }
 /* ---- Plus ---- */
@@ -1315,12 +1350,12 @@ function drawDetail(){
   if(tNote!=null&&$("tNoteIn")){const save=()=>{const o=materialize();if(o.tasks[tNote]){const v=$("tNoteIn").value.trim();if(v)o.tasks[tNote].n=v;else delete o.tasks[tNote].n;}tNote=null;commit();drawDetail();};
     $("tNoteOk").onclick=save;$("tNoteIn").onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();save();}};}
   $("dTasks").querySelectorAll("button[data-mv]").forEach(b=>b.onclick=()=>moveTask(+b.dataset.mv));
-  $("dSubLab").textContent=a.k==="anglais"?"🗣️ Quelle langue ?":a.k==="dev"?"Projet":a.k==="sport"?"Type de sport":"Catégorie / projet";
-  // détails de séance : sport (durée + intensité) · langues (durée + compétences travaillées)
-  const SESS=a.k==="sport"||a.k==="anglais";$("dSportBox").style.display=SESS?"":"none";
-  if(SESS){const isL=a.k==="anglais",sp=(isL?o.lang:o.sport)||{},MIN=isL?[10,15,20,30,45,60]:[15,20,30,45,60,90];
-    const OPT=isL?(TY("anglais").skills||DEF_TYPES.anglais.skills):["Légère","Moyenne","Forte"],cur=isL?(sp.skills||[]):[sp.int];
-    $("dSpMinL").textContent=isL?"⏱️ Temps réellement pratiqué":"🏃 Durée réelle de la séance";
+  $("dSubLab").textContent=subLabel(a.k);
+  // détails de séance selon la catégorie : « effort » (durée + intensité) · « apprentissage » (durée + compétences)
+  const SESS=T.detail==="effort"||T.detail==="learn";$("dSportBox").style.display=SESS?"":"none";
+  if(SESS){const isL=T.detail==="learn",sp=(isL?o.lang:o.sport)||{},MIN=isL?[10,15,20,30,45,60]:[15,20,30,45,60,90];
+    const OPT=isL?(T.skills&&T.skills.length?T.skills:DEF_TYPES.anglais.skills):["Légère","Moyenne","Forte"],cur=isL?(sp.skills||[]):[sp.int];
+    $("dSpMinL").textContent=isL?"⏱️ Temps réellement pratiqué":"⏱️ Durée réelle de la séance";
     $("dSpIntL").textContent=isL?"Compétences travaillées (plusieurs choix)":"Intensité";
     $("dSpMin").innerHTML=MIN.map(v=>`<button class="pill ${sp.min===v?'sel':''}" data-v="${v}">${v} min</button>`).join("");
     $("dSpInt").innerHTML=OPT.map(v=>`<button class="pill ${cur.includes(v)?'sel':''}" data-v="${esc(v)}">${esc(v)}</button>`).join("");
@@ -1359,67 +1394,82 @@ function closeDetail(){$("dModal").classList.remove("open");det=null;renderAll()
 $("dClose").onclick=closeDetail;
 $("dModal").onclick=e=>{if(e.target.id==="dModal")closeDetail();};
 $("dEdit").onclick=()=>{const{date,id}=det;const a=findItem(date,id);
-  if(!a.ev&&!config.weekly[parse(date).getDay()].some(x=>x.id===id)||!a.ev&&overrideOf(date)){toast(overrideOf(date)?"Semaine spéciale : refais-la avec l'assistant, ou supprime l'activité pour ce jour":"Ce planning est figé (semaine passée) pour garder l'historique");return;}
-  $("dModal").classList.remove("open");det=null;if(a.ev)openEvent(id);else openWeekly(parse(date).getDay(),id,date);};
+  const dow=parse(date).getDay(),ov=!a.ev&&overrideOf(date)?wsKey(date):null;
+  if(!a.ev&&!ov&&!config.weekly[dow].some(x=>x.id===id)){toast("Ce planning est figé (jour passé) pour garder l'historique");return;}
+  $("dModal").classList.remove("open");det=null;if(a.ev)openEvent(id);else openWeekly(dow,id,date,ov);};
 
 /* ================= edit sheet ================= */
 let editing=null,mode="once";
 function fillTypes(){$("mType").innerHTML=Object.entries(config.types).map(([k,v])=>`<option value="${k}">${esc(v.e+" "+v.n)}</option>`).join("");}
 function fillSubs(sel){const t=TY($("mType").value);$("mSub").innerHTML=`<option value="">— Aucune —</option>`+t.subs.map(x=>`<option ${x===sel?"selected":""}>${esc(x)}</option>`).join("");}
-$("mType").onchange=()=>fillSubs("");
+$("mType").onchange=()=>{fillSubs("");drawEditCheck();};
 $("mDay").innerHTML=DAYS.map((n,i)=>`<option value="${i}">${n}</option>`).join("");
 function setMode(v){mode=v;$("mMode").querySelectorAll("button").forEach(b=>b.classList.toggle("on",b.dataset.v===v));
   $("rowDate").style.display=v==="once"?"":"none";$("rowDay").style.display=v==="week"?"":"none";
-  $("mHint").textContent=v==="once"?"Seulement ce jour-là. Ce qui tombe au même moment sera barré et mis dans « À rattraper ».":"Se répète chaque semaine, ce jour-là.";
+  $("mHint").textContent=v==="once"?"Seulement ce jour-là.":"Se répète chaque semaine, ce jour-là.";
   if(typeof drawEditCheck==="function")drawEditCheck();}
 $("mMode").querySelectorAll("button").forEach(b=>b.onclick=()=>setMode(b.dataset.v));
 function fill(a,title,del){fillTypes();$("mTitle").textContent=title;$("mStart").value=a.s;$("mEnd").value=a.e;$("mText").value=a.t;$("mType").value=a.k;fillSubs(a.sub||"");$("mDel").style.display=del?"":"none";$("modal").classList.add("open");drawEditCheck();}
-function openWeekly(dow,id,date){const a=config.weekly[dow].find(x=>x.id===id);editing={kind:"week",dow,id};setMode("week");$("mDay").value=dow;$("mDate").value=date||selDate;fill(a,"Modifier (chaque semaine)",true);}
-function openEvent(id){const e=config.events.find(x=>x.id===id);editing={kind:"once",id};setMode("once");$("mDate").value=e.date;$("mDay").value=parse(e.date).getDay();fill(e,"Modifier l'événement",true);}
-function openNew(p){editing={kind:"new"};setMode(p.mode||"once");$("mDate").value=p.date||selDate;$("mDay").value=parse(p.date||selDate).getDay();fill(p,p.title||"Ajouter une activité",false);}
+// ov = clé d'une semaine spéciale (config.overrides) : on modifie alors cette semaine-là, pas la semaine type
+function openWeekly(dow,id,date,ov){const W=ov?config.overrides[ov]:config.weekly,a=W[dow].find(x=>x.id===id);editing={kind:"week",dow,id,ov:ov||null};setMode("week");$("mDay").value=dow;$("mDate").value=date||selDate;$("mRep").checked=false;fill(a,ov?"Modifier (semaine spéciale ⭐)":"Modifier (chaque semaine)",true);}
+function openEvent(id){const e=config.events.find(x=>x.id===id);editing={kind:"once",id};setMode("once");$("mDate").value=e.date;$("mDay").value=parse(e.date).getDay();$("mRep").checked=!!e.rep;fill(e,"Modifier l'événement",true);}
+function openNew(p){editing={kind:"new"};setMode(p.mode||"once");$("mDate").value=p.date||selDate;$("mDay").value=parse(p.date||selDate).getDay();$("mRep").checked=false;fill(p,p.title||"Ajouter une activité",false);}
+const editWeekly=()=>editing&&editing.ov?config.overrides[editing.ov]:config.weekly;
 function closeEdit(){$("modal").classList.remove("open");editing=null;}
 // Vérifie en direct si le créneau choisi est libre : frise colorée + message 🟢 / 🟠 / 🔴 + créneau libre proposé
 const SOFT=["repos","repas"];
 function drawEditCheck(){if(!editing)return;
-  const s=m($("mStart").value||"00:00"),e=m($("mEnd").value||"00:00");let list,ctx;
+  const s=m($("mStart").value||"00:00");let e=m($("mEnd").value||"00:00");if(e===0&&s>0)e=1439;
+  const cross=e<s,eTL=cross?1439:e;let list,ctx;
   if(mode==="once"){const d=$("mDate").value||selDate;list=itemsFor(d).filter(a=>!a.off);ctx=nice(parse(d));}
-  else{const dow=+$("mDay").value;list=[...config.weekly[dow]];ctx="chaque "+DAYS[dow].toLowerCase();}
+  else{const dow=+$("mDay").value;list=[...editWeekly()[dow]];ctx=(editing.ov?"":"chaque ")+DAYS[dow].toLowerCase();}
   list=list.filter(a=>a.id!==editing.id&&a.k!=="sommeil");
   const lo=360,hi=1440,pc=v=>(Math.max(lo,Math.min(hi,v))-lo)/(hi-lo)*100;
-  const ok=e>s,hit=ok?list.filter(a=>m(a.s)<e&&m(a.e)>s):[],hard=hit.filter(a=>!SOFT.includes(a.k)),soft=hit.filter(a=>SOFT.includes(a.k));
+  const ok=eTL>s,hit=ok?list.filter(a=>m(a.s)<eTL&&m(a.e)>s):[],hard=hit.filter(a=>!SOFT.includes(a.k)),soft=hit.filter(a=>SOFT.includes(a.k));
   const col=!ok||hard.length?"#dc2626":soft.length?"#d97706":"#059669";
-  $("mTL").innerHTML=list.map(a=>`<i style="left:${pc(m(a.s))}%;width:${pc(m(a.e))-pc(m(a.s))}%;background:${TY(a.k).c}"></i>`).join("")+(ok?`<b style="left:${pc(s)}%;width:${Math.max(.8,pc(e)-pc(s))}%;border-color:${col};background:${col}26"></b>`:"");
+  $("mTL").innerHTML=list.map(a=>`<i style="left:${pc(m(a.s))}%;width:${pc(m(a.e))-pc(m(a.s))}%;background:${TY(a.k).c}"></i>`).join("")+(ok?`<b style="left:${pc(s)}%;width:${Math.max(.8,pc(eTL)-pc(s))}%;border-color:${col};background:${col}26"></b>`:"");
   const mm=$("mMsg"),sv=$("mSave");sv.style.background="";sv.textContent="Enregistrer";
-  if(!ok){mm.className="rmsg bad";mm.textContent="⛔ L'heure de fin doit être après le début.";return;}
-  const L=fmtH((e-s)/60);
+  // « Remplacer » : seulement pour une activité ponctuelle (hors imprévu/mission, qui remplacent toujours) en conflit
+  const auto=["imprevu","mission"].includes($("mType").value);
+  $("mRepRow").style.display=mode==="once"&&hard.length&&!auto?"":"none";
+  if(!ok){mm.className="rmsg bad";mm.textContent="⛔ Le début et la fin doivent être différents.";return;}
+  const L=fmtH(((cross?1440-s+e:e-s))/60),mid=cross?`<br>🌙 Passe minuit : coupée en deux (${hm(s)} → 00:00, puis 00:00 → ${hm(e)} le lendemain).`:"";
+  if(cross&&!hard.length&&!soft.length){mm.className="rmsg info";mm.innerHTML=`🟢 <b>Créneau libre</b> · ${ctx} (${L})${mid}`;return;}
   if(hard.length){
     // créneau libre le plus proche, même durée, entre 6h et 23h
     const busy=list.filter(a=>!SOFT.includes(a.k)).map(a=>[m(a.s),m(a.e)]).sort((x,y)=>x[0]-y[0]),N=e-s,cand=[];let cur=360;
     busy.forEach(([bs,be])=>{if(bs-cur>=N)cand.push(cur,bs-N);cur=Math.max(cur,be);});if(1380-cur>=N)cand.push(cur,1380-N);
     let best=null;for(let i=0;i<cand.length;i+=2){const v=Math.min(Math.max(s,cand[i]),cand[i+1]);if(best==null||Math.abs(v-s)<Math.abs(best-s))best=v;}
-    mm.className="rmsg bad";mm.innerHTML=`🔴 <b>Conflit d'horaire</b> · ${ctx}, ${hm(s)}–${hm(e)} chevauche :<br>`+hard.map(a=>`• ${TY(a.k).e} ${esc(a.t)} ${a.s}–${showT(a.e)}`).join("<br>")+
-      (best!=null?`<br><button class="fix" id="mFix">🟢 Prendre le créneau libre ${hm(best)}–${hm(best+N)}</button>`:"<br>Aucun créneau libre de cette durée ce jour-là.");
-    if(best!=null)$("mFix").onclick=()=>{$("mStart").value=hm(best);$("mEnd").value=hm(best+N);drawEditCheck();};
+    mm.className="rmsg bad";mm.innerHTML=`🔴 <b>Conflit d'horaire</b> · ${ctx}, ${hm(s)}–${hm(eTL)} chevauche :<br>`+hard.map(a=>`• ${TY(a.k).e} ${esc(a.t)} ${a.s}–${showT(a.e)}`).join("<br>")+
+      (mode==="once"?(auto?`<br>⚡ ${auto&&$("mType").value==="mission"?"Une mission":"Un imprévu"} remplace ces activités : elles iront dans « Rattraper ».`:""):"")+mid+
+      (best!=null&&!cross?`<br><button class="fix" id="mFix">🟢 Prendre le créneau libre ${hm(best)}–${hm(best+N)}</button>`:cross?"":"<br>Aucun créneau libre de cette durée ce jour-là.");
+    if(best!=null&&!cross)$("mFix").onclick=()=>{$("mStart").value=hm(best);$("mEnd").value=hm(best+N);drawEditCheck();};
     sv.style.background="#dc2626";sv.textContent="Enregistrer quand même";
-  }else if(soft.length){mm.className="rmsg warn";mm.innerHTML=`🟠 <b>Libre</b> (${L}), mais prend sur : `+soft.map(a=>`${esc(a.t)} ${a.s}–${showT(a.e)}`).join(", ");}
-  else{mm.className="rmsg ok";mm.innerHTML=`🟢 <b>Créneau libre</b> · ${ctx}, ${hm(s)}–${hm(e)} (${L})`;}
+  }else if(soft.length){mm.className="rmsg warn";mm.innerHTML=`🟠 <b>Libre</b> (${L}), mais prend sur : `+soft.map(a=>`${esc(a.t)} ${a.s}–${showT(a.e)}`).join(", ")+mid;}
+  else{mm.className="rmsg ok";mm.innerHTML=`🟢 <b>Créneau libre</b> · ${ctx}, ${hm(s)}–${hm(eTL)} (${L})${mid}`;}
 }
 ["mStart","mEnd","mDate","mDay"].forEach(id=>{$(id).addEventListener("input",drawEditCheck);$(id).addEventListener("change",drawEditCheck);});
 $("mCancel").onclick=closeEdit;
 $("modal").onclick=e=>{if(e.target.id==="modal")closeEdit();};
 $("mSave").onclick=()=>{
-  const s=$("mStart").value,e=$("mEnd").value,k=$("mType").value,sub=$("mSub").value,t=$("mText").value.trim()||(sub||TY(k).n);
-  if(!s||!e||m(e)<=m(s)){toast("L'heure de fin doit être après le début");return;}
-  let id=uid(),tpl=[...(TPL[k]||[])];
-  if(editing.kind==="week"||mode==="week")snapWeekly();
-  if(editing.kind==="week"){const arr=config.weekly[editing.dow],i=arr.findIndex(x=>x.id===editing.id);id=arr[i].id;tpl=arr[i].tpl||tpl;arr.splice(i,1);}
-  if(editing.kind==="once"){const i=config.events.findIndex(x=>x.id===editing.id);id=config.events[i].id;tpl=config.events[i].tpl||[];config.events.splice(i,1);}
-  if(mode==="once"){const date=$("mDate").value||selDate;config.events.push({id,date,s,e,t,k,sub,tpl});selDate=date;}
-  else{const dow=+$("mDay").value;config.weekly[dow].push({id,s,e,t,k,sub,tpl});}
-  touch("config");closeEdit();renderAll();toast("Enregistré ✓");
+  const s=$("mStart").value,k=$("mType").value,sub=$("mSub").value,t=$("mText").value.trim()||(sub||TY(k).n);let e=$("mEnd").value;
+  if(e==="00:00")e="23:59";
+  if(!s||!e||m(e)===m(s)){toast("Le début et la fin doivent être différents");return;}
+  const cross=m(e)<m(s),e1=cross?"23:59":e,rep=$("mRepRow").style.display!=="none"&&$("mRep").checked;
+  const snap=JSON.stringify({c:config,w:weeks});
+  let id=uid(),tpl=[...(TPL[k]||[])];const W=editWeekly();
+  if((editing.kind==="week"||mode==="week")&&!editing.ov)snapWeekly();
+  if(editing.kind==="week"){const arr=W[editing.dow],i=arr.findIndex(x=>x.id===editing.id);if(i>=0){id=arr[i].id;tpl=arr[i].tpl||tpl;arr.splice(i,1);}}
+  if(editing.kind==="once"){const i=config.events.findIndex(x=>x.id===editing.id);if(i>=0){id=config.events[i].id;tpl=config.events[i].tpl||[];config.events.splice(i,1);}}
+  if(mode==="once"){const date=$("mDate").value||selDate,ev={id,date,s,e:e1,t,k,sub,tpl};if(rep)ev.rep=true;config.events.push(ev);
+    if(cross){const ev2={id:uid(),date:ymd(addDays(parse(date),1)),s:"00:00",e,t,k,sub,tpl:[...tpl]};if(rep)ev2.rep=true;config.events.push(ev2);}selDate=date;}
+  else{const dow=+$("mDay").value,T=editing.ov?W:config.weekly;T[dow].push({id,s,e:e1,t,k,sub,tpl});
+    if(cross)T[(dow+1)%7].push({id:uid(),s:"00:00",e,t,k,sub,tpl:[...tpl]});}
+  touch("config");closeEdit();renderAll();undoToast(cross?"🌙 Enregistré, coupé en deux à minuit":"Enregistré ✓",snap);
 };
-$("mDel").onclick=()=>{if(editing.kind==="week"){snapWeekly();const arr=config.weekly[editing.dow];arr.splice(arr.findIndex(x=>x.id===editing.id),1);}else{config.events.splice(config.events.findIndex(x=>x.id===editing.id),1);}
-  touch("config");closeEdit();renderAll();toast("Supprimé");};
+$("mDel").onclick=()=>{const snap=JSON.stringify({c:config,w:weeks});
+  if(editing.kind==="week"){if(!editing.ov)snapWeekly();const arr=editWeekly()[editing.dow];arr.splice(arr.findIndex(x=>x.id===editing.id),1);}else{config.events.splice(config.events.findIndex(x=>x.id===editing.id),1);}
+  touch("config");closeEdit();renderAll();undoToast("Supprimé",snap);};
 $("addBtn").onclick=()=>openNew({s:"09:00",e:"10:00",t:"",k:"dev",mode:"once",date:selDate});
 /* ================= actions rapides ================= */
 const openM=id=>$(id).classList.add("open"), closeM=id=>$(id).classList.remove("open");
@@ -1522,8 +1572,11 @@ function renderBilan(){
   $("bTitle").textContent=nice(d);$("bSub").textContent=bDate===todayStr()?"Aujourd'hui":"";
   $("ring").innerHTML=ring(sc.pct);
   $("bBig").textContent=sc.n?(sc.rated===sc.n?"Journée notée ✓":`${sc.n-sc.rated} activité${sc.n-sc.rated>1?'s':''} à noter`):"Rien de prévu ce jour";
-  const devH=sc.its.filter(a=>a.k==="dev").reduce((s,a)=>{const o=occ(bDate,a.id);return s+(o&&o.st?dur(a)*stW(o):0);},0);
-  $("bSmall").innerHTML=`${sc.rated}/${sc.n} notées · 💻 ${fmtH(devH)} de dev faites<br>💧 ${w.water[bDate]||0}/${config.settings.water} verres`;
+  // travail principal fait aujourd'hui, dans l'unité de chaque catégorie
+  const mainDone=mainCats().map(k=>{const T=TY(k),L=sc.its.filter(a=>a.k===k);if(!L.length)return "";const c=emptyCat();
+    L.forEach(a=>{const o=occ(bDate,a.id),w=o&&o.st?stW(o):0;c.planH+=dur(a);c.planN++;if(w>0){c.gotH+=dur(a)*w;c.doneN+=w;c.min+=actMin(a,o,w);}});
+    return `${T.e} ${fmtCat(catVal(c,T.unit),T.unit)} / ${fmtCat(catPlan(c,T.unit),T.unit)}`;}).filter(Boolean);
+  $("bSmall").innerHTML=`${sc.rated}/${sc.n} notées${mainDone.length?" · "+mainDone.join(" · "):""}<br>💧 ${w.water[bDate]||0}/${config.settings.water} verres`;
   $("rateList").innerHTML=sc.its.length?sc.its.map(a=>{const o=occ(bDate,a.id)||{},T=TY(a.k),tk=tasksOf(bDate,a),td=tk.filter(t=>t.d).length;
     return `<div class="rate"><div class="info" data-id="${a.id}" style="cursor:pointer"><b>${T.e} ${esc(a.t)}</b><span>${a.s}–${showT(a.e)}${subOf(bDate,a)?' · '+esc(subOf(bDate,a)):''}${tk.length?` · ☑ ${td}/${tk.length}`:''} · détails ›</span></div>
     ${isFuture(bDate)?`<span class="empty">⏳ à venir</span>`:`<div class="chips">${Object.entries(ST).map(([k,v])=>`<button class="chip ${k} ${o.st===k?'on':''}" data-id="${a.id}" data-s="${k}" aria-label="${v.n}">${v.e}</button>`).join("")}</div>`}</div>`;}).join(""):`<div class="empty">Aucune activité à noter.</div>`;
@@ -1566,15 +1619,15 @@ function weekStats(wk){
 const r1=x=>Math.round(x*10)/10;
 function kpiOf(wk){const s=weekStats(wk),G=config.settings,T=s.types,pc=(a,b)=>b?Math.round(a/b*100):null;
   const top=((weeks[wk]||{}).top)||{};let tn=0,td=0;s.days.forEach(x=>{if(!x.past)return;const tp=top[x.k];if(tp&&tp.t){tn++;if(tp.d)td++;}});
-  const has=s.pastDays>0;
-  return{s,has,rated:s.rated+s.autoMiss>0,list:[
+  const has=s.pastDays>0,r=rangeStats(wk,ymd(addDays(parse(wk),6)));
+  // une ligne par catégorie « suivie dans l'analyse » (travail principal d'abord), + ses minutes si détails de séance
+  const cats=Object.entries(config.types).filter(([k,C])=>C.track&&C.kpi).sort((a,b)=>(b[1].main?1:0)-(a[1].main?1:0)),catRows=[];
+  cats.forEach(([k,C])=>{const c=r.cat[k]||emptyCat(),u=C.unit,plan=catPlan(c,u);if(!plan&&!(C.goal>0)&&!c.doneN)return;
+    catRows.push({k:"c:"+k,e:C.e,n:C.n,u:u==="h"?"h":u==="min"?" min":" séances",v:has?catVal(c,u):null,g:catGoal(k,plan),gNote:C.goal>0?"":" (prévu)",fmt:u==="h"?(v=>fmtH(v)):null});
+    if(C.detail!=="none"&&C.unit!=="min"&&C.goalMin>0)catRows.push({k:"m:"+k,e:"⏱️",n:`${C.n} · minutes`,u:" min",v:has?Math.round(c.min):null,g:C.goalMin});});
+  return{s,r,has,rated:s.rated+s.autoMiss>0,list:[
     {k:"pct",e:"📊",n:"Réalisation globale",u:"%",v:s.pct,g:80},
-    {k:"dev",e:"💻",n:"Développement",u:"h",v:has&&T.dev?r1(T.dev.got):has&&s.rated?0:null,g:G.devGoal,fmt:v=>fmtH(v)},
-    {k:"cours",e:"👨‍🏫",n:"Cours assurés",u:"%",v:T.cours&&T.cours.cnt?pc(T.cours.done,T.cours.cnt):null,g:100},
-    {k:"prep",e:"📝",n:"Travail enseignant",u:"%",v:T.prep&&T.prep.plan?pc(T.prep.got,T.prep.plan):null,g:80},
-    {k:"spN",e:"🏃",n:"Séances de sport",u:"",v:has?s.spN:null,g:G.sportGoal},
-    {k:"spMin",e:"⏱️",n:"Minutes de sport",u:" min",v:has?s.spMin:null,g:G.sportMin},
-    {k:"lang",e:TY("anglais").e,n:TY("anglais").n,u:" min",v:s.langPlan?s.langMin:null,g:s.langPlan},
+    ...catRows,
     {k:"water",e:"💧",n:"Eau / jour",u:" verres",v:s.water==null?null:r1(s.water),g:G.water},
     {k:"tasks",e:"☑",n:"Sous-tâches faites",u:"%",v:s.tk?pc(s.tkd,s.tk):null,g:80},
     {k:"bilan",e:"✅",n:"Bilan rempli",u:"%",v:s.n?pc(s.rated,s.n):null,g:100},
@@ -1590,7 +1643,7 @@ function renderAna(){
   const cur=hist[7],K=cur.K,s=K.s,P=hist[6].K,prevW=hist.slice(0,7).filter(h=>h.idx!=null).slice(-3);
   $("aTitle").textContent=`Semaine du ${ws.getDate()} ${MONTHS[ws.getMonth()]} au ${we.getDate()} ${MONTHS[we.getMonth()]}`;
   $("aSub").textContent=`${s.rated}/${s.n} activités notées`+(s.autoMiss?` · ${s.autoMiss} non notée${s.autoMiss>1?"s":""} = non faite${s.autoMiss>1?"s":""}`:"");
-  const G=config.settings,dev=s.types.dev||{plan:0,got:0},sp=s.types.sport||{cnt:0,done:0};
+  const G=config.settings,pick=(KK,x)=>KK.list.find(z=>z.k===x.k)||{v:null};
   // ---- verdict : j'avance ou je recule ?
   {const v=$("aVerdict");const avg=prevW.length?Math.round(prevW.reduce((a,h)=>a+h.idx,0)/prevW.length):null;
     if(cur.idx==null){v.className="card verdict flat";v.innerHTML=`<div class="vi">🕓</div><div><div class="vt">Pas encore de données</div><div class="vs">Note tes activités dans <b>Bilan</b> (✅ 🌓 ❌) : l'analyse se remplit dès le premier jour noté.</div></div>`;}
@@ -1603,10 +1656,10 @@ function renderAna(){
   $("trend").innerHTML=hist.map((h,i)=>{const d=parse(h.k),v=h.idx;return `<div class="col"><span class="v">${v==null?'':v}</span><div class="b ${v==null?'na':''} ${i===7?'cur':''}" style="height:${v==null?3:Math.max(4,v)}%;${v!=null?`background:${v>=80?'var(--ok)':v>=60?'var(--part)':'var(--ko)'}`:''}"></div><span class="l">${d.getDate()}/${d.getMonth()+1}</span></div>`;}).join("");
   // ---- tableau des KPI
   {const nf=v=>String(v).replace(".",","),fmt=(x,v)=>v==null?"—":x.fmt?x.fmt(v):(x.u==="%"?nf(Math.round(v))+"%":nf(v)+x.u),fd=(x,v)=>x.u==="%"?Math.round(v)+" pts":fmt(x,v);
-    const rows=K.list.map((x,i)=>{const a=attain(x),p=P.list[i],dl=x.v!=null&&p.v!=null?r1(x.v-p.v):null;
+    const rows=K.list.map(x=>{const a=attain(x),p=pick(P,x),dl=x.v!=null&&p.v!=null?r1(x.v-p.v):null;
       const bc=a==null?"n":a>=100?"g":a>=70?"o":"r";
-      const avg4=hist.slice(3,7).map(h=>h.K.list[i].v).filter(v=>v!=null);
-      return `<tr><td>${x.e} ${esc(x.n)}<div class="empty" style="font-size:11.5px;font-weight:500">objectif ${x.g?fmt(x,x.g):"—"}${avg4.length?` · moy. 4 sem. ${fmt(x,r1(avg4.reduce((s,v)=>s+v,0)/avg4.length))}`:""}</div></td>
+      const avg4=hist.slice(3,7).map(h=>pick(h.K,x).v).filter(v=>v!=null);
+      return `<tr><td>${x.e} ${esc(x.n)}<div class="empty" style="font-size:11.5px;font-weight:500">objectif ${x.g?fmt(x,x.g)+(x.gNote||""):"—"}${avg4.length?` · moy. 4 sem. ${fmt(x,r1(avg4.reduce((s,v)=>s+v,0)/avg4.length))}`:""}</div></td>
         <td><b>${fmt(x,x.v)}</b></td><td><span class="badge ${bc}">${a==null?"—":a+"%"}</span></td>
         <td><span class="dl ${dl==null?'eq':dl>0?'up':dl<0?'down':'eq'}">${dl==null?"—":dl>0?"▲ "+fd(x,dl):dl<0?"▼ "+fd(x,-dl):"="}</span></td></tr>`;}).join("");
     $("kpiTable").innerHTML=`<table class="ktab"><tr><th>Indicateur</th><th>Valeur</th><th>Atteint</th><th>vs S-1</th></tr>${rows}</table>
@@ -1622,10 +1675,13 @@ function renderAna(){
   $("bars").innerHTML=s.days.map(x=>`<div class="col"><span class="v">${x.pct==null?'':x.pct+'%'}</span><div class="b ${x.pct==null?'na':''}" style="height:${x.pct==null?3:Math.max(4,x.pct)}%;${x.pct!=null?`background:${x.pct>=80?'var(--ok)':x.pct>=50?'var(--part)':'var(--ko)'}`:''}"></div><span class="l">${SHORT[x.d.getDay()]}</span></div>`).join("");
   {const Gw=G.water||8,mx=Math.max(Gw,...s.days.map(x=>x.water));
     $("wBars").innerHTML=s.days.map(x=>{const na=!x.past&&!x.water;return `<div class="col"><span class="v">${na?'':x.water}</span><div class="b ${na?'na':''}" style="height:${na?3:Math.max(4,Math.round(x.water/mx*100))}%;${na?'':`background:${x.water>=Gw?'#0ea5e9':'#bae6fd'}`}"></div><span class="l">${SHORT[x.d.getDay()]}</span></div>`;}).join("");}
-  {const pN=G.sportGoal?Math.min(100,Math.round(s.spN/G.sportGoal*100)):0,pM=G.sportMin?Math.min(100,Math.round(s.spMin/G.sportMin*100)):0;
-    $("spBox").innerHTML=`<div class="trow"><span class="nm">🏃 Séances</span><div class="track"><i style="width:${pN}%;background:var(--sport)"></i></div><span class="vv">${s.spN} / ${G.sportGoal}</span></div>
-      <div class="trow"><span class="nm">⏱️ Minutes</span><div class="track"><i style="width:${pM}%;background:var(--sport)"></i></div><span class="vv">${s.spMin} / ${G.sportMin}</span></div>
-      <div class="empty" style="margin-top:6px">${s.spX?`Dont ${s.spX} séance${s.spX>1?'s':''} hors planning · `:''}Ajoute une séance avec ＋ → 🏃 Sport fait.</div>`;}
+  // séances détaillées : toutes les catégories avec « détails de séance » (sport, langues, études…)
+  {const D=Object.entries(config.types).filter(([k,C])=>C.track&&C.detail!=="none"),bar=(p,c)=>`<div class="track"><i style="width:${Math.min(100,p)}%;background:${c}"></i></div>`;
+    $("spBoxT").style.display=$("spBox").style.display=D.length?"":"none";
+    $("spBox").innerHTML=D.map(([k,C])=>{const c=K.r.cat[k]||emptyCat(),gN=C.unit==="sess"?catGoal(k,c.planN):0;
+      return `<div class="trow"><span class="nm">${C.e} ${esc(C.n)}</span>${bar(gN?c.doneN/gN*100:C.goalMin?c.min/C.goalMin*100:0,C.c)}<span class="vv">${String(r1(c.doneN)).replace(".",",")} séance${c.doneN>1?"s":""}</span></div>
+        <div class="trow"><span class="nm" style="font-weight:500;color:var(--muted)">⏱️ minutes</span>${bar(C.goalMin?c.min/C.goalMin*100:0,C.c)}<span class="vv">${Math.round(c.min)}${C.goalMin?" / "+C.goalMin:""} min</span></div>`;}).join("")+
+      `<div class="empty" style="margin-top:6px">${s.spX?`Dont ${s.spX} séance${s.spX>1?'s':''} hors planning · `:''}Ajoute une séance faite hors planning avec ＋.</div>`;}
   const tk=Object.entries(s.types).sort((a,b)=>b[1].plan-a[1].plan);
   $("types").innerHTML=tk.length?tk.map(([k,v])=>{const p=v.plan?Math.round(v.got/v.plan*100):0;return `<div class="trow"><span class="nm">${TY(k).e} ${TY(k).n}</span><div class="track"><i style="width:${p}%;background:${TY(k).c}"></i></div><span class="vv">${fmtH(v.got)} / ${fmtH(v.plan)}</span></div>`;}).join(""):`<div class="empty">Pas encore de données pour cette semaine.</div>`;
   const se=Object.entries(s.subs).filter(([,h])=>h>0).sort((a,b)=>b[1]-a[1]);const mx=se.length?se[0][1]:1;
@@ -1638,26 +1694,26 @@ function renderAna(){
       if(best.k!==worst.k)L.push(`Meilleur jour : <b>${DAYS[best.d.getDay()]}</b> (${best.pct}%). Le plus difficile : <b>${DAYS[worst.d.getDay()]}</b> (${worst.pct}%) — regarde si ce jour est trop chargé.`);}
     const rt=Object.entries(s.types).filter(([k,v])=>v.plan&&k!=="repos").map(([k,v])=>({k,p:v.got/v.plan}));
     if(rt.length){const w=rt.reduce((a,b)=>b.p<a.p?b:a);if(w.p<.7)L.push(`Point faible : <b>${TY(w.k).n}</b> (${Math.round(w.p*100)}% réalisé). Réduis le créneau ou déplace-le à un moment où tu as plus d'énergie.`);}
-    if(dev.got>=G.devGoal)L.push(`💻 Objectif dev atteint : ${fmtH(dev.got)} / ${fmtH(G.devGoal)}. Garde ce rythme sans dépasser, pour éviter la fatigue.`);
-    const dp=se.filter(([key])=>key.startsWith("dev|")&&key!=="dev|");if(dp.length)L.push(`💻 Projet principal cette semaine : <b>${esc(dp[0][0].split("|")[1])}</b> (${fmtH(dp[0][1])}).`);
-    if(sp.cnt&&sp.done<sp.cnt)L.push(`🏃 Sport : ${sp.done}/${sp.cnt} séances prévues faites. Même 20 minutes comptent : mieux vaut court que rien.`);
-    if(s.spMin&&s.spMin<G.sportMin)L.push(`⏱️ ${s.spMin} min de sport sur ${G.sportMin} visées : il manque ${G.sportMin-s.spMin} min (une marche rapide de 30 min suffit souvent).`);
+    // par catégorie suivie : objectif fixé atteint, sous-catégorie principale, minutes manquantes
+    Object.entries(config.types).filter(([k,C])=>C.track&&C.kpi).forEach(([k,C])=>{const x=K.list.find(z=>z.k==="c:"+k);
+      if(x&&C.goal>0&&x.v!=null&&x.v>=x.g)L.push(`${C.e} Objectif « ${esc(C.n)} » atteint : ${fmtCat(x.v,C.unit)} / ${fmtCat(x.g,C.unit)}. Garde ce rythme sans dépasser, pour éviter la fatigue.`);
+      if(C.main){const sb=se.filter(([key])=>key.startsWith(k+"|")&&key!==k+"|");if(sb.length>1)L.push(`${C.e} ${esc(C.n)} : surtout <b>${esc(sb[0][0].split("|")[1])}</b> cette semaine (${fmtH(sb[0][1])}).`);}
+      const mm=K.list.find(z=>z.k==="m:"+k);if(mm&&mm.v!=null&&mm.v<mm.g*.7)L.push(`⏱️ ${esc(C.n)} : ${mm.v} min sur ${mm.g} visées. Plusieurs petites séances valent mieux qu'une longue par semaine.`);});
     if(s.autoMiss)L.push(`📋 ${s.autoMiss} activité${s.autoMiss>1?'s':''} jamais notée${s.autoMiss>1?'s':''} ${s.autoMiss>1?'comptent':'compte'} comme <b>non faite${s.autoMiss>1?'s':''}</b> (règle des ${OVERDUE_DAYS} jours). Note-les dans le Bilan si tu les as faites.`);
     {const r=s.unrated-s.autoMiss,p=r>1;if(r>0)L.push(`${r} activité${p?'s':''} récente${p?'s':''} à noter : sans note, ${p?'elles compteront':'elle comptera'} comme non faite${p?'s':''} après ${OVERDUE_DAYS} jours.`);}
   }
-  if(s.lostDev)L.push(`⚡ Imprévus / missions : ${fmtH(s.lostDev)} de dev annulées. Replace-les dans un créneau libre depuis l'onglet 🔄 Rattraper.`);
-  if(s.water!=null&&s.water<config.settings.water-2)L.push(`💧 Tu bois en moyenne ${Math.round(s.water*10)/10} verres par jour. Ajoute un verre à chaque pause entre deux cours.`);
+  if(s.lostAll)L.push(`⚡ Imprévus / déplacements : ${fmtH(s.lostAll)} de travail annulées. Replace-les dans un créneau libre depuis 🔄 Rattraper.`);
+  if(s.water!=null&&s.water<config.settings.water-2)L.push(`💧 Tu bois en moyenne ${Math.round(s.water*10)/10} verres par jour. Ajoute un verre à chaque pause.`);
   if(s.tk&&s.tkd/s.tk<.6)L.push(`☑ Seulement ${Math.round(s.tkd/s.tk*100)}% des tâches cochées : mets moins de tâches par créneau (2–3 maximum).`);
   {let tn=0,td=0;s.days.forEach(x=>{const tp=((weeks[aWeek]||{}).top||{})[x.k];if(tp&&tp.t){tn++;if(tp.d)td++;}});if(tn)L.push(`🎯 Tâche n°1 réalisée ${td}/${tn} jours${td<tn?' : choisis-en une plus petite si elle reste souvent non faite.':' 👏'}`);}
   // progrès / reculs par rapport à la semaine précédente (en % de l'objectif)
-  {const ch=K.list.map((x,i)=>{const p=P.list[i];if(x.v==null||p.v==null||!x.g)return null;return{x,d:Math.round((x.v-p.v)/x.g*100),dv:r1(x.v-p.v)};}).filter(Boolean);
+  {const ch=K.list.map(x=>{const p=pick(P,x);if(x.v==null||p.v==null||!x.g)return null;return{x,d:Math.round((x.v-p.v)/x.g*100),dv:r1(x.v-p.v)};}).filter(Boolean);
     const fmt=(x,v)=>x.fmt?x.fmt(Math.abs(v)):(x.u==="%"?Math.round(Math.abs(v))+" pts":String(Math.abs(v)).replace(".",",")+x.u);
     const up=ch.filter(c=>c.d>=10).sort((a,b)=>b.d-a.d).slice(0,2),dn=ch.filter(c=>c.d<=-10).sort((a,b)=>a.d-b.d).slice(0,2);
     up.forEach(c=>L.unshift(`✅ <b>Progrès</b> : ${c.x.e} ${esc(c.x.n)} +${fmt(c.x,c.dv)} par rapport à la semaine dernière.`));
     dn.forEach(c=>L.unshift(`⚠️ <b>Recul</b> : ${c.x.e} ${esc(c.x.n)} −${fmt(c.x,c.dv)} par rapport à la semaine dernière. Regarde ce qui a changé (imprévus, fatigue, créneau mal placé).`));
     const miss=K.list.filter(x=>attain(x)!=null&&attain(x)<70);
-    if(miss.length)L.push(`🎯 Objectifs loin d'être atteints : ${miss.map(x=>`${x.e} ${esc(x.n)} (${attain(x)}%)`).join(", ")}. Choisis-en <b>un seul</b> à améliorer la semaine prochaine.`);
-    if(s.langPlan&&s.langMin<s.langPlan*.7)L.push(`${TY("anglais").e} ${esc(TY("anglais").n)} : ${s.langMin} min pratiquées sur ${Math.round(s.langPlan)} prévues. 10 minutes chaque jour valent mieux qu'une longue séance par semaine.`);}
+    if(miss.length)L.push(`🎯 Objectifs loin d'être atteints : ${miss.map(x=>`${x.e} ${esc(x.n)} (${attain(x)}%)`).join(", ")}. Choisis-en <b>un seul</b> à améliorer la semaine prochaine.`);}
   if(!L.length)L.push("Bonne semaine, continue comme ça 👏");
   $("insights").innerHTML=L.map(x=>`<li>${x}</li>`).join("");
   // ---- tes remarques (note du jour, note d'activité, remarques des sous-tâches)
@@ -1706,11 +1762,11 @@ const didType=(k,ty)=>itemsFor(k).some(a=>a.k===ty&&!a.off&&(()=>{const o=occ(k,
 function renderStreaks(){
   const W8=k=>((weeks[wsKey(k)]||{}).water||{})[k]||0;
   const S=[
-    [`${TY("anglais").e} ${TY("anglais").n}`,streakDays(k=>didType(k,"anglais"),k=>hasType(k,"anglais"))],
+    // une série par catégorie marquée « 🔥 Série de jours »
+    ...Object.entries(config.types).filter(([c,T])=>T.track&&T.streak).map(([c,T])=>[`${T.e} ${T.n}`,streakDays(k=>didType(k,c),k=>hasType(k,c))]),
     ["💧 Eau",streakDays(k=>W8(k)>=config.settings.water)],
     ["🎯 N°1",streakDays(k=>{const tp=((weeks[wsKey(k)]||{}).top||{})[k];return !!(tp&&tp.d);})],
-    ["✅ Bilan",streakDays(k=>{const sc=dayScore(k);return sc.n>0&&sc.rated===sc.n;},k=>dayScore(k).n>0)],
-    ["💻 Dev",streakDays(k=>didType(k,"dev"),k=>hasType(k,"dev"))]
+    ["✅ Bilan",streakDays(k=>{const sc=dayScore(k);return sc.n>0&&sc.rated===sc.n;},k=>dayScore(k).n>0)]
   ];
   $("streaks").innerHTML=S.map(([l,n])=>`<span class="streak ${n?'':'zero'}">${l} ${n?`<b>${n} j 🔥</b>`:"· 0"}</span>`).join("");
 }
@@ -1769,10 +1825,19 @@ function renderSet(){
       <div class="body">
         <div class="inrow"><input class="em" data-f="e" value="${esc(T.e)}" aria-label="Emoji"><input class="grow" data-f="n" value="${esc(T.n)}" aria-label="Nom"><input type="color" data-f="c" value="${T.c}" aria-label="Couleur"></div>
         <label class="setrow" style="border:0;padding:10px 0 0"><span>✅ À noter dans le bilan<small>${T.track?"rond ✅ 🌓 ❌, compté dans l'analyse et les rappels":"visible dans le planning, sans rien à noter ni rappel"}</small></span><input type="checkbox" data-track="1" ${T.track?"checked":""} style="width:24px;height:24px;accent-color:var(--ok)"></label>
-        <div class="lab">${k==="anglais"?"Langues apprises":k==="dev"?"Projets":"Catégories / projets"}</div>
+        ${T.track?`<div class="lab">📏 Suivi et objectif</div>
+        <div class="setrow"><span>Mesurer en<small>ce qui compte pour cette activité</small></span><select data-cf="unit" class="cfsel">${Object.entries(UNIT_L).map(([u,l])=>`<option value="${u}" ${T.unit===u?"selected":""}>${l}</option>`).join("")}</select></div>
+        <div class="setrow"><span>Objectif par semaine<small>en ${UNIT_L[T.unit]} · 0 = ce qui est prévu au planning</small></span><input type="number" min="0" step="${T.unit==="h"?0.5:T.unit==="min"?10:1}" data-cf="goal" value="${T.goal||0}"></div>
+        <div class="setrow"><span>Détails de chaque séance<small>${T.detail==="effort"?"durée réelle + intensité (sport…)":T.detail==="learn"?"durée réelle + compétences (langues, études…)":"aucun"}</small></span><select data-cf="detail" class="cfsel"><option value="none" ${T.detail==="none"?"selected":""}>Aucun</option><option value="effort" ${T.detail==="effort"?"selected":""}>Effort</option><option value="learn" ${T.detail==="learn"?"selected":""}>Apprentissage</option></select></div>
+        ${T.detail!=="none"&&T.unit!=="min"?`<div class="setrow"><span>Objectif en minutes<small>par semaine · 0 = aucun</small></span><input type="number" min="0" step="10" data-cf="goalMin" value="${T.goalMin||0}"></div>`:""}
+        <label class="setrow"><span>📊 Suivre dans l'analyse<small>tableau des KPI, objectifs automatiques</small></span><input type="checkbox" data-cf="kpi" ${T.kpi?"checked":""} style="width:22px;height:22px;accent-color:var(--ok)"></label>
+        <label class="setrow"><span>💼 Travail principal<small>résumé de l'accueil et du bilan</small></span><input type="checkbox" data-cf="main" ${T.main?"checked":""} style="width:22px;height:22px;accent-color:var(--ok)"></label>
+        <label class="setrow"><span>🔥 Série de jours<small>compteur de jours d'affilée sur l'écran Planning</small></span><input type="checkbox" data-cf="streak" ${T.streak?"checked":""} style="width:22px;height:22px;accent-color:var(--ok)"></label>`:""}
+        <div class="lab">Sous-catégories · ${esc(subLabel(k))}</div>
         <div class="pills">${T.subs.map((x,i)=>`<button class="pill" data-del="subs" data-i="${i}">${esc(x)}<span class="x">×</span></button>`).join("")||'<span class="empty">Aucune</span>'}</div>
-        <div class="inrow"><input class="grow" data-add="subs" placeholder="${k==="anglais"?"Ajouter une langue (ex. Turc)":"Ajouter (ex. Nouveau projet)"}"><button class="btn" data-addbtn="subs">＋</button></div>
-        ${T.skills?`<div class="lab">Compétences suivies</div>
+        <div class="inrow"><input class="grow" data-add="subs" placeholder="Ajouter (ex. ${k==="anglais"?"Turc":"Nouveau projet"})"><button class="btn" data-addbtn="subs">＋</button></div>
+        <div class="inrow"><input class="grow" data-f="subL" value="${esc(T.subL||"")}" placeholder="Nom de la question (ex. Projet, Client, Matière…)" aria-label="Nom des sous-catégories"></div>
+        ${T.skills&&T.detail==="learn"?`<div class="lab">Compétences suivies</div>
         <div class="pills">${T.skills.map((x,i)=>`<button class="pill" data-del="skills" data-i="${i}">${esc(x)}<span class="x">×</span></button>`).join("")}</div>
         <div class="inrow"><input class="grow" data-add="skills" placeholder="Ajouter (ex. Traduction)"><button class="btn" data-addbtn="skills">＋</button></div>`:''}
         <div class="lab">Tâches rapides</div>
@@ -1784,6 +1849,10 @@ function renderSet(){
   $("catList").querySelectorAll("details.cat").forEach(d=>{
     const k=d.dataset.k,T=config.types[k];
     d.addEventListener("toggle",()=>{d.open?openCats.add(k):openCats.delete(k);});
+    d.querySelectorAll("[data-cf]").forEach(inp=>inp.onchange=()=>{const f=inp.dataset.cf;
+      T[f]=inp.type==="checkbox"?inp.checked:inp.type==="number"?Math.max(0,+inp.value||0):inp.value;
+      if(f==="detail"&&T.detail==="learn"&&!T.skills)T.skills=[...DEF_TYPES.anglais.skills];
+      touch("config");renderAll();renderSet();toast("Enregistré ✓");});
     const tk=d.querySelector("[data-track]");if(tk)tk.onchange=()=>{T.track=tk.checked;touch("config");renderAll();renderSet();toast(T.track?`${T.e} ${T.n} : à noter dans le bilan`:`${T.e} ${T.n} : plus rien à noter`);};
     d.querySelectorAll("[data-f]").forEach(inp=>inp.onchange=()=>{const v=inp.value.trim();if(!v)return;T[inp.dataset.f]=v;touch("config");renderAll();renderSet();});
     d.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{T[b.dataset.del].splice(+b.dataset.i,1);touch("config");renderSet();});
@@ -1795,8 +1864,8 @@ function renderSet(){
       if(used){toast("Catégorie utilisée dans le planning : change d'abord ces activités");return;}
       delete config.types[k];openCats.delete(k);touch("config");renderSet();toast("Catégorie supprimée");};
   });
-  const G=config.settings;$("nOn").checked=G.notifOn!==false;$("nLead").value=String(G.notifLead??10);$("nMorning").value=G.morningAt||"";$("sDev").value=G.devGoal;$("sSport").value=G.sportGoal;$("sWater").value=G.water;$("sBilan").value=G.bilanAt;$("sStart").value=G.start;
-  $("sSportMin").value=G.sportMin;$("sGlass").value=G.glassMl;$("nWOn").checked=!!G.wRemOn;$("nWEvery").value=String(G.wEvery);$("nWFrom").value=G.wFrom;$("nWTo").value=G.wTo;
+  const G=config.settings;$("nOn").checked=G.notifOn!==false;$("nLead").value=String(G.notifLead??10);$("nMorning").value=G.morningAt||"";$("sWater").value=G.water;$("sBilan").value=G.bilanAt;$("sStart").value=G.start;
+  $("sGlass").value=G.glassMl;$("nWOn").checked=!!G.wRemOn;$("nWEvery").value=String(G.wEvery);$("nWFrom").value=G.wFrom;$("nWTo").value=G.wTo;
   $("nWInfo").textContent=G.wRemOn?`toutes les ${G.wEvery} min de ${G.wFrom} à ${G.wTo}`:"désactivés";
   drawDayChips("sRest",G.rest,null,v=>{G.rest=v;touch("config");renderAll();renderSet();});
   $("syncInfo").textContent=db?"Sauvegardé sur ton compte, visible par toi seul":"Enregistré sur ce téléphone · envoie une sauvegarde sur Drive de temps en temps";
@@ -1805,30 +1874,36 @@ function renderSet(){
 $("ncAdd").onclick=()=>{const n=$("ncN").value.trim();if(!n){toast("Donne un nom à la catégorie");return;}
   const k="c_"+uid();config.types[k]={n,e:$("ncE").value.trim()||"📌",c:$("ncC").value,track:true,subs:[],lib:[]};openCats.add(k);
   $("ncN").value="";touch("config");renderSet();toast("Catégorie créée ✓");};
-[["sDev","devGoal",Number],["sSport","sportGoal",Number],["sSportMin","sportMin",Number],["sWater","water",Number],["sGlass","glassMl",Number],["sBilan","bilanAt",String],["sStart","start",String],["nWEvery","wEvery",Number],["nWFrom","wFrom",String],["nWTo","wTo",String]].forEach(([id,key,cast])=>{
+[["sWater","water",Number],["sGlass","glassMl",Number],["sBilan","bilanAt",String],["sStart","start",String],["nWEvery","wEvery",Number],["nWFrom","wFrom",String],["nWTo","wTo",String]].forEach(([id,key,cast])=>{
   $(id).onchange=()=>{const v=$(id).value;if(v==="")return;config.settings[key]=cast(v);touch("config");renderAll();toast("Enregistré ✓");};});
 /* ================= notifications natives ================= */
 function buildNotifs(){
   const G=config.settings,lead=+G.notifLead||0,out=[],t=parse(todayStr());let id=1;
-  for(let i=0;i<8;i++){const d=addDays(t,i),k=ymd(d),its=itemsFor(k);
+  for(let i=0;i<NOTIF_DAYS;i++){const d=addDays(t,i),k=ymd(d),its=itemsFor(k);
     its.filter(a=>!a.off&&TY(a.k).track&&a.k!=="repos").forEach(a=>{
       const at=new Date(d.getFullYear(),d.getMonth(),d.getDate(),0,m(a.s)-lead);
       const tk=tasksOf(k,a).filter(x=>!x.d).map(x=>x.t).slice(0,3),sb=subOf(k,a);
       out.push({id:id++,at,title:`${TY(a.k).e} ${a.t}`,body:`${lead?`Dans ${lead} min · `:""}${a.s}–${showT(a.e)}${sb?" · "+sb:""}${tk.length?"\nÀ faire : "+tk.join(", "):""}`,extra:{date:k,id:a.id}});});
     const tr=its.filter(a=>!a.off&&TY(a.k).track);
     if(tr.length&&G.bilanAt){const at=new Date(d.getFullYear(),d.getMonth(),d.getDate(),0,m(G.bilanAt));out.push({id:id++,at,title:"✅ Bilan du jour",body:"2 minutes : coche ce que tu as fait aujourd'hui.",extra:{view:"bilan",date:k}});}
-    if(G.wRemOn){const ev=Math.max(30,+G.wEvery||90),L=(G.water*G.glassMl/1000).toFixed(1).replace(".",",");
+    const drank=((weeks[wsKey(k)]||{}).water||{})[k]||0;   // objectif d'eau déjà atteint ce jour-là : plus de rappel
+    if(G.wRemOn&&drank<G.water){const ev=Math.max(30,+G.wEvery||90),L=(G.water*G.glassMl/1000).toFixed(1).replace(".",",");
       for(let t=m(G.wFrom||"08:00");t<=m(G.wTo||"20:00");t+=ev){const at=new Date(d.getFullYear(),d.getMonth(),d.getDate(),0,t);
         out.push({id:id++,at,title:"💧 Un verre d'eau",body:`Objectif : ${G.water} verres (${L} L) aujourd'hui. Touche « ＋ » dans l'app pour le noter.`,extra:{view:"plan"}});}}
     if(G.morningAt&&!isRest(d.getDay())){const at=new Date(d.getFullYear(),d.getMonth(),d.getDate(),0,m(G.morningAt));out.push({id:id++,at,title:"🎯 Ta tâche n°1",body:"Choisis la chose la plus importante à finir aujourd'hui.",extra:{view:"plan"}});}
   }
-  return out.sort((a,b)=>a.at-b.at);
+  // avant la fin de la période couverte : rappel d'ouvrir l'app pour prolonger les rappels
+  {const d=addDays(t,NOTIF_DAYS-2);out.push({id:id++,at:new Date(d.getFullYear(),d.getMonth(),d.getDate(),9,0),title:"🔔 Tes rappels s'arrêtent dans 2 jours",body:"Ouvre l'application une fois pour les prolonger de 2 semaines.",extra:{view:"plan"}});}
+  out.sort((a,b)=>a.at-b.at);
+  return out;
 }
+const NOTIF_DAYS=14;
+const notifUntil=()=>nice(addDays(parse(todayStr()),NOTIF_DAYS-1));
 let nTimer;
 function rescheduleNotifs(){clearTimeout(nTimer);nTimer=setTimeout(async()=>{
   const B=window.NativeBridge;if(!B||!B.isNative){if($("nStatus"))$("nStatus").textContent="Disponible seulement dans l'application installée";return;}
   try{const r=await B.schedule(config.settings.notifOn?buildNotifs():[]);
-    const st=!config.settings.notifOn?"Désactivés":!r.ok?"⚠️ Autorise les notifications dans les réglages Android":`✅ ${r.count} rappels programmés (7 jours)${r.exact===false?" · ⚠️ heure exacte non autorisée":""}`;
+    const st=!config.settings.notifOn?"Désactivés":!r.ok?"⚠️ Autorise les notifications dans les réglages Android":`✅ ${r.count} rappels programmés jusqu'au ${notifUntil()}${r.count>=400?" (limite Android atteinte : les plus lointains attendront)":""} · ouvre l'app au moins une fois toutes les 2 semaines${r.exact===false?" · ⚠️ heure exacte non autorisée":""}`;
     if($("nStatus"))$("nStatus").textContent=st;}catch(e){if($("nStatus"))$("nStatus").textContent="Erreur : "+(e&&e.message||e);}
 },1500);}
 $("nOn").onchange=()=>{config.settings.notifOn=$("nOn").checked;touch("config");};
@@ -1855,7 +1930,12 @@ async function autoBackup(opts){opts=opts||{};clearTimeout(bkTimer);bkTimer=null
   if(r.ok){if(!opts.suffix)bkDirty=false;try{localStorage.setItem(LB,JSON.stringify({at:Date.now(),where:r.where}));}catch(e){}}
   renderBkInfo();return r;}
 function queueBackup(){bkDirty=true;clearTimeout(bkTimer);bkTimer=setTimeout(()=>autoBackup(),20000);}
-function downloadBackup(){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([backupJSON()],{type:"application/json"}));a.download=bkName();document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1000);}
+const LS_SHARE="edt-v3-lastshare",LS_FIRST="edt-v3-first";
+try{if(!localStorage.getItem(LS_FIRST))localStorage.setItem(LS_FIRST,String(Date.now()));}catch(e){}
+const markShared=()=>{try{localStorage.setItem(LS_SHARE,String(Date.now()));}catch(e){}};
+// Jours depuis le dernier envoi hors du téléphone (null = pas encore nécessaire : moins de 7 jours d'utilisation)
+function daysSinceShare(){try{const f=+localStorage.getItem(LS_FIRST)||Date.now(),s=+localStorage.getItem(LS_SHARE)||0,ref=s||f,d=Math.floor((Date.now()-ref)/864e5);return d>=7?d:null;}catch(e){return null;}}
+function downloadBackup(){markShared();const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([backupJSON()],{type:"application/json"}));a.download=bkName();document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1000);}
 async function restoreFrom(text){
   let b;try{b=JSON.parse(text);}catch(e){toast("Sauvegarde invalide");return;}
   if(!b||!b.config||!b.config.weekly||typeof b.config.weekly!=="object"){toast("Sauvegarde invalide");return;}
@@ -1868,19 +1948,25 @@ async function restoreFrom(text){
 $("bkNow").onclick=async()=>{const B=window.NativeBridge;if(!B||!B.isNative){downloadBackup();return;}
   const r=await autoBackup({ask:true});toast(r.ok?"💾 Sauvegardé · "+r.where:"⚠️ Sauvegarde impossible : utilise « Envoyer »");};
 $("bkShare").onclick=async()=>{const B=window.NativeBridge;if(!B||!B.isNative||!B.shareBackup){downloadBackup();return;}
-  try{await B.shareBackup(bkName(),backupJSON());}catch(e){if(!/cancel/i.test(e&&e.message||""))toast("Partage impossible");}};
+  try{await B.shareBackup(bkName(),backupJSON());markShared();renderAll();}catch(e){if(!/cancel/i.test(e&&e.message||""))toast("Partage impossible");}};
 $("bkFile").onclick=()=>$("bkFileIn").click();
 $("bkFileIn").onchange=()=>{const f=$("bkFileIn").files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{$("bkFileIn").value="";restoreFrom(String(rd.result));};rd.onerror=()=>toast("Lecture du fichier impossible");rd.readAsText(f);};
 $("bkCopy").onclick=async()=>{try{await navigator.clipboard.writeText(backupJSON());toast("Sauvegarde copiée ✓ — colle-la dans tes notes");}catch(e){toast("Copie impossible ici");}};
 $("bkRestore").onclick=()=>{const v=$("bkIn").value.trim();if(v)restoreFrom(v);};
 
-function toast(t){const el=$("toast");el.textContent=t;el.classList.add("show");clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove("show"),1900);}
+function toast(t){const el=$("toast");el.textContent=t;el.classList.remove("act");el.classList.add("show");clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove("show"),1900);}
+// Message avec « ↶ Annuler » pendant 6 s : remet les données comme avant l'action (snap = JSON {c:config,w:weeks})
+function undoToast(t,snap){const el=$("toast");el.innerHTML=`${esc(t)} <button id="tUndo">↶ Annuler</button>`;el.classList.add("show","act");clearTimeout(el._t);
+  $("tUndo").onclick=()=>{const s=JSON.parse(snap);config=s.c;weeks=s.w;ensureConfig();touch("config");Object.keys(weeks).forEach(k=>touch("weeks/"+k));
+    el.classList.remove("show","act");renderAll();if(view==="set")renderSet();setTimeout(()=>toast("↶ Annulé"),50);};
+  el._t=setTimeout(()=>el.classList.remove("show","act"),6000);}
 
 /* ================= utilitaires UI ================= */
 function choose(title,meta,opts){
   $("xTitle").textContent=title;$("xMeta").textContent=meta||"";
   $("xBody").innerHTML=`<div class="choice">${opts.map((o,i)=>`<button class="${o.danger?'danger':''}" data-i="${i}">${esc(o.l)}${o.sub?`<small>${esc(o.sub)}</small>`:''}</button>`).join("")}</div>`;
-  $("xBody").querySelectorAll("[data-i]").forEach(b=>b.onclick=()=>{closeM("xModal");opts[+b.dataset.i].fn();renderAll();});
+  $("xBody").querySelectorAll("[data-i]").forEach(b=>b.onclick=()=>{closeM("xModal");const o=opts[+b.dataset.i],snap=o.danger?JSON.stringify({c:config,w:weeks}):null;
+    o.fn();renderAll();if(snap)undoToast($("toast").classList.contains("show")&&$("toast").textContent?$("toast").textContent:"C'est fait",snap);});
   openM("xModal");
 }
 const DCH=["D","L","M","M","J","V","S"];
@@ -1907,12 +1993,12 @@ $("whMinus").onclick=()=>addWater(todayStr(),-1);
 
 /* ================= sport hors planning ================= */
 function quickSport(){
-  const T=TY("sport"),t=todayStr();
+  const EK=effortCat(),T=TY(EK),t=todayStr();$("sModal").querySelector("h2").textContent=`${T.e} Séance de ${T.n.toLowerCase()}`;
   const D=[{l:"Aujourd'hui",v:t},{l:"Hier",v:ymd(addDays(parse(t),-1))},{l:"Avant-hier",v:ymd(addDays(parse(t),-2))}];
   const K=(T.subs.length?T.subs:["Sport"]).map(l=>({l})),M=[15,20,30,45,60,90].map(v=>({l:v+" min",v})),I=["Légère","Moyenne","Forte"].map(l=>({l}));
   let d=0,k=0,mi=2,it=1;
   pills("sP0",D,d,i=>d=i);pills("sP1",K,k,i=>k=i);pills("sP2",M,mi,i=>mi=i);pills("sP3",I,it,i=>it=i);
-  $("sGo").onclick=()=>{const day=D[d].v,w=W(wsKey(day));w.sport=w.sport||{};(w.sport[day]=w.sport[day]||[]).push({id:uid(),t:K[k].l,min:M[mi].v,int:I[it].l});
+  $("sGo").onclick=()=>{const day=D[d].v,w=W(wsKey(day));w.sport=w.sport||{};(w.sport[day]=w.sport[day]||[]).push({id:uid(),k:EK,t:K[k].l,min:M[mi].v,int:I[it].l});
     touch("weeks/"+wsKey(day));closeM("sModal");renderAll();toast(`🏃 ${K[k].l} · ${M[mi].v} min enregistré`);};
   openM("sModal");
 }
@@ -1984,7 +2070,7 @@ function profileFromCurrent(){
   const G=config.settings,P=config.profile||{};
   const p={name:P.name||"",role:P.role||"Enseignant CEM · Développeur",start:G.start,rest:[...G.rest],wake:"06:00",bed:"22:30",
     bf:{on:false,s:"06:30",e:"07:00"},lunch:{on:false,s:"12:00",e:"13:00"},dinner:{on:false,s:"19:00",e:"20:00"},
-    slots:[],projects:[...TY("dev").subs],devGoal:G.devGoal,sportGoal:G.sportGoal,sportMin:G.sportMin,water:G.water,glassMl:G.glassMl,
+    slots:[],projects:[...TY("dev").subs],devGoal:TY("dev").goal||0,sportGoal:TY("sport").goal||0,sportMin:TY("sport").goalMin||0,water:G.water,glassMl:G.glassMl,
     wRemOn:!!G.wRemOn,wEvery:G.wEvery,wFrom:G.wFrom,wTo:G.wTo};
   const all=[0,1,2,3,4,5,6].map(d=>config.weekly[d]||[]),used=new Set();
   const common=pred=>{const f=all.map(L=>L.find(pred));if(!f.every(Boolean)||!f.every(x=>x.s===f[0].s&&x.e===f[0].e))return null;f.forEach(x=>used.add(x.id));return f[0];};
@@ -2138,7 +2224,9 @@ $("wzNext").onclick=async()=>{
   else{snapWeekly();config.weekly=W7;}
   p.slots.forEach(sl=>{const T=config.types[sl.k];if(T&&sl.sub&&!T.subs.includes(sl.sub))T.subs.push(sl.sub);});
   if(scope==="one"){const wk=WZ.oneWeek;touch("config");WZ=null;selDate=wk<ws0?ws0:(wk===ws0?todayStr():wk);go("plan");toast(`⭐ Planning spécial créé ${lbl}`);return;}
-  Object.assign(config.settings,{start:p.start||config.settings.start,rest:[...p.rest],devGoal:+p.devGoal||0,sportGoal:+p.sportGoal||0,sportMin:+p.sportMin||0,water:Math.max(1,+p.water||8),glassMl:Math.max(50,+p.glassMl||250),wRemOn:!!p.wRemOn,wEvery:+p.wEvery||90,wFrom:p.wFrom,wTo:p.wTo});
+  if(config.types.dev)config.types.dev.goal=+p.devGoal||0;
+  if(config.types.sport){config.types.sport.goal=+p.sportGoal||0;config.types.sport.goalMin=+p.sportMin||0;}
+  Object.assign(config.settings,{start:p.start||config.settings.start,rest:[...p.rest],water:Math.max(1,+p.water||8),glassMl:Math.max(50,+p.glassMl||250),wRemOn:!!p.wRemOn,wEvery:+p.wEvery||90,wFrom:p.wFrom,wTo:p.wTo});
   config.types.dev.subs=[...new Set([...p.projects,...p.slots.filter(sl=>sl.k==="dev"&&sl.sub).map(sl=>sl.sub)])];
   config.profile={name:(p.name||"").trim(),role:(p.role||"").trim()};
   touch("config");WZ=null;selDate=scope==="next"?nx:todayStr();go("plan");toast(`✅ Planning appliqué ${lbl}`);
@@ -2164,16 +2252,17 @@ function shiftDate(level,dateStr,n){const d=parse(dateStr);
   return ymd(new Date(d.getFullYear()+n,0,1));}
 // Statistiques sur une plage de dates (jours passés et depuis le début du programme)
 function rangeStats(from,to){const today=todayStr(),st=config.settings.start;
-  const r={h:{},focus:0,cours:0,sportN:0,sportMin:0,lang:0,water:0,wDays:0,waterOK:0,plan:0,got:0,tkd:0,top:0,bilan:0,elapsed:0,total:0};
+  const r={h:{},cat:{},focus:0,cours:0,sportN:0,sportMin:0,lang:0,water:0,wDays:0,waterOK:0,plan:0,got:0,tkd:0,top:0,bilan:0,elapsed:0,total:0};
   for(let d=parse(from);ymd(d)<=to;d=addDays(d,1)){const k=ymd(d);r.total++;if(k>today||k<st)continue;r.elapsed++;
     const wk=weeks[wsKey(k)]||{};let n=0,rated=0;
     itemsFor(k).forEach(a=>{if(a.off||!TY(a.k).track)return;const o=occ(k,a.id),h=dur(a),st=effSt(k,o),w=st?stW(o,st):0;n++;if(o&&o.st)rated++;
       if(inScore(a.k)&&st){r.plan+=h;r.got+=h*w;}r.h[a.k]=(r.h[a.k]||0)+h*w;
+      {const c=r.cat[a.k]||(r.cat[a.k]=emptyCat());c.planH+=h;c.planN++;if(w>0){c.gotH+=h*w;c.doneN+=w;c.min+=actMin(a,o,w);}}
       if(a.k==="cours"&&o&&o.st==="done")r.cours++;
       if(a.k==="sport"&&w>0){r.sportN++;r.sportMin+=o.sport&&o.sport.min?o.sport.min:Math.round(h*60*w);}
       if(a.k==="anglais"&&w>0)r.lang+=o.lang&&o.lang.min?o.lang.min:Math.round(h*60*w);
       if(o&&o.tasks)r.tkd+=o.tasks.filter(t=>t.d).length;if(o&&o.focus)r.focus+=o.focus.min||0;});
-    ((wk.sport||{})[k]||[]).forEach(x=>{r.sportN++;r.sportMin+=x.min||0;});
+    ((wk.sport||{})[k]||[]).forEach(x=>{r.sportN++;r.sportMin+=x.min||0;const ck=x.k||effortCat(),c=r.cat[ck]||(r.cat[ck]=emptyCat());c.doneN++;c.min+=x.min||0;c.gotH+=(x.min||0)/60;});
     const wv=(wk.water||{})[k]||0;if(k!==today||wv){r.water+=wv;r.wDays++;}if(wv>=config.settings.water)r.waterOK++;
     const tp=(wk.top||{})[k];if(tp&&tp.d)r.top++;if(n&&rated===n)r.bilan++;}
   return r;}
@@ -2191,8 +2280,16 @@ const METRICS={
   top:{n:"Tâche n°1 réalisée",u:"jours",sum:1,get:r=>r.top},
   bilan:{n:"Bilan complet",u:"jours",sum:1,get:r=>r.bilan},
   focus:{n:"Minutes de concentration",u:"min",sum:1,get:r=>r.focus}};
-function metricDef(key){if(METRICS[key])return METRICS[key];if(key&&key.startsWith("h:")){const k=key.slice(2);return{n:"Heures de "+TY(k).n.toLowerCase(),u:"h",sum:1,get:r=>r1(r.h[k]||0)};}return{n:"?",u:"",get:()=>0};}
-const metricKeys=()=>[...Object.keys(METRICS),...Object.keys(config.types).filter(k=>!["dev","prep","sommeil","repas"].includes(k)&&TY(k).track).map(k=>"h:"+k)];
+// Indicateurs par catégorie : « cat:k » (dans l'unité choisie pour la catégorie) et « catmin:k » (minutes pratiquées)
+const UNIT_SHORT={h:"h",min:"min",sess:"séances"};
+function metricDef(key){if(METRICS[key])return METRICS[key];
+  if(key&&key.startsWith("cat:")){const k=key.slice(4),T=TY(k);return{n:`${T.n} (${UNIT_L[T.unit]})`,u:UNIT_SHORT[T.unit],sum:1,get:r=>catVal(r.cat[k]||emptyCat(),T.unit)};}
+  if(key&&key.startsWith("catmin:")){const k=key.slice(7),T=TY(k);return{n:`${T.n} (minutes pratiquées)`,u:"min",sum:1,get:r=>Math.round((r.cat[k]||emptyCat()).min)};}
+  if(key&&key.startsWith("h:")){const k=key.slice(2);return{n:"Heures de "+TY(k).n.toLowerCase(),u:"h",sum:1,get:r=>r1(r.h[k]||0)};}return{n:"?",u:"",get:()=>0};}
+// Liste proposée : une ligne par catégorie suivie (+ minutes si détails de séance) puis les indicateurs généraux.
+// Les anciens indicateurs (dev, cours, sportN…) restent calculés pour les objectifs déjà créés.
+const GEN_METRICS=["pct","water","waterOK","tasks","top","bilan","focus"];
+const metricKeys=()=>[...Object.entries(config.types).filter(([k,T])=>T.track&&T.kpi).flatMap(([k,T])=>T.detail!=="none"&&T.unit!=="min"?["cat:"+k,"catmin:"+k]:["cat:"+k]),...GEN_METRICS];
 const nfr=v=>String(v).replace(".",",");
 const fmtU=(v,u)=>u==="h"?fmtH(v):u==="%"?Math.round(v)+" %":nfr(v)+(u?" "+u:"");
 const pKeyFor=(g,per)=>g.rec?per.key:g.period;
@@ -2276,7 +2373,7 @@ $("gNext").onclick=()=>{GV.date=shiftDate(GV.level,GV.date,1);renderGoals();};
 let GF=null;
 function openGoal(g){
   const per=periodOf(GV.level,GV.date);
-  GF=g?{...JSON.parse(JSON.stringify(g)),isNew:false,_id:g.id}:{id:uid(),isNew:true,level:GV.level,rec:false,kind:"check",title:"",metric:"dev",target:"",unit:"",steps:[],cat:"",parent:"",note:"",log:{},period:per.key,from:per.from};
+  GF=g?{...JSON.parse(JSON.stringify(g)),isNew:false,_id:g.id}:{id:uid(),isNew:true,level:GV.level,rec:false,kind:"check",title:"",metric:metricKeys()[0],target:"",unit:"",steps:[],cat:"",parent:"",note:"",log:{},period:per.key,from:per.from};
   $("gfTitle").textContent=GF.isNew?"Nouvel objectif":"Modifier l'objectif";$("gfDel").style.display=GF.isNew?"none":"";
   drawGoalForm();openM("gModal");setTimeout(()=>{const t=$("gfT");if(t&&GF.isNew)t.focus();},60);}
 function drawGoalForm(){const f=GF,per=f.rec?null:periodOf(f.level,f.from||GV.date);
@@ -2292,7 +2389,7 @@ function drawGoalForm(){const f=GF,per=f.rec?null:periodOf(f.level,f.from||GV.da
     <label class="setrow" style="border:0;padding:0 0 10px"><span>🔁 Répéter chaque ${LV[f.level].every}<small>habitude ou indicateur suivi à chaque période</small></span><input type="checkbox" id="gfRec" ${f.rec?"checked":""} style="width:24px;height:24px;accent-color:var(--ok)"></label>
     <div class="lab">Comment le mesurer ?</div><div class="pills" id="gfK">${kinds.map(([k,l])=>`<button class="pill ${f.kind===k?"sel":""}" data-k="${k}">${l}</button>`).join("")}</div>
     ${f.kind==="num"?`<div class="row"><label class="field">Cible<input type="number" id="gfTg" value="${esc(f.target)}" step="any" placeholder="ex. 12"></label><label class="field">Unité<input id="gfU" value="${esc(f.unit)}" placeholder="livres, km, pages…"></label></div>`:""}
-    ${f.kind==="metric"?`<label class="field">Indicateur calculé automatiquement<select id="gfM">${metricKeys().map(k=>`<option value="${k}" ${k===f.metric?"selected":""}>${esc(metricDef(k).n)}</option>`).join("")}</select></label>
+    ${f.kind==="metric"?`<label class="field">Indicateur calculé automatiquement<select id="gfM">${[...new Set([...metricKeys(),f.metric])].map(k=>`<option value="${k}" ${k===f.metric?"selected":""}>${esc(metricDef(k).n)}</option>`).join("")}</select></label>
       <label class="field">Cible (${esc(M.u)}${M.sum?` sur ${f.rec?"chaque "+LV[f.level].every:"la période"}`:""})<input type="number" id="gfTg" value="${esc(f.target)}" step="any" placeholder="ex. 12"></label>`:""}
     ${f.kind==="steps"?`<div class="lab">Étapes</div><div id="gfSteps">${(f.steps||[]).map((s,i)=>`<div class="stp"><input data-si="${i}" value="${esc(s.t)}"><button data-sx="${i}" aria-label="Supprimer">×</button></div>`).join("")}</div>
       <div class="stp"><input id="gfSNew" placeholder="Ajouter une étape puis ＋"><button id="gfSAdd" style="background:var(--ink);color:#fff">＋</button></div>`:""}
@@ -2396,8 +2493,9 @@ $("fxStop").onclick=()=>fxFinish(false);
 function fxFinish(silent){if(!FX)return;const f=FX,workMin=Math.max(0,Math.round(fxWorkMs()/60000)),a=findItem(f.date,f.id);
   FX=null;fxSave();hideFocus();rescheduleNotifs();if(!a)return;
   const o=occ(f.date,f.id,true);if(workMin>0){o.focus={min:((o.focus&&o.focus.min)||0)+workMin,n:((o.focus&&o.focus.n)||0)+1,last:new Date().toISOString()};
-    if(a.k==="sport")o.sport=Object.assign({},o.sport,{min:((o.sport&&o.sport.min)||0)+workMin});
-    if(a.k==="anglais")o.lang=Object.assign({},o.lang,{min:((o.lang&&o.lang.min)||0)+workMin});}
+    const dt=TY(a.k).detail;
+    if(dt==="effort")o.sport=Object.assign({},o.sport,{min:((o.sport&&o.sport.min)||0)+workMin});
+    if(dt==="learn")o.lang=Object.assign({},o.lang,{min:((o.lang&&o.lang.min)||0)+workMin});}
   touch("weeks/"+wsKey(f.date));renderAll();if(silent)return;
   const tk=o.tasks||tasksOf(f.date,a),all=tk.length&&tk.every(t=>t.d);
   choose(`🎯 ${workMin} min de concentration`,`${a.t} · c'était comment ?`,[

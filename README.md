@@ -42,6 +42,22 @@ publiée dans **Releases**. Installe le nouvel APK par-dessus l'ancien : tes don
 - Conflits d'horaire vérifiés en direct avant d'enregistrer : frise de la journée + 🟢 libre / 🟠 sur un repos / 🔴 conflit,
   avec proposition du créneau libre le plus proche.
 
+## Catégories intelligentes (pour tous les métiers)
+Chaque catégorie (Paramètres → ouvrir une catégorie) se règle : à noter dans le bilan, mesurer en heures / minutes /
+séances, objectif par semaine (0 = ce qui est prévu), détails de séance (effort ou apprentissage) et objectif en minutes,
+suivi dans l'analyse, travail principal, série de jours 🔥, nom des sous-catégories (Projet, Client, Matière…).
+L'analyse, les objectifs automatiques, le bilan, l'accueil et les séries sont générés à partir de ces réglages.
+
+## Règles métier
+- Seuls les imprévus, les missions et les activités ponctuelles marquées « 🔁 Remplacer » barrent ce qui est prévu
+  au même moment (les activités barrées vont dans Rattraper). Sinon, les deux activités sont gardées.
+- Rattrapage : jusqu'à 60 jours en arrière ; au-delà de 14 jours, « Abandonner » est proposé.
+- Rappels programmés sur 14 jours, avec un rappel d'ouvrir l'app avant la fin ; plus de rappel d'eau une fois l'objectif du jour atteint.
+- Une activité qui passe minuit (ex. 23:00 → 01:00) est coupée en deux automatiquement.
+- Une semaine spéciale ⭐ se modifie comme la semaine type (sans toucher à la semaine type).
+- « ↶ Annuler » pendant 6 s après une suppression, un vidage de jour, une replanification automatique…
+- Rappel sur l'accueil si la sauvegarde n'a pas été envoyée hors du téléphone depuis 7 jours.
+
 ## Bilan
 - ✅ Fait coche toutes les sous-tâches ; une sous-tâche non cochée = 🌓 à moitié.
 - 💬 Remarque possible sur chaque sous-tâche, en plus de la note de l'activité et de la note du jour.
