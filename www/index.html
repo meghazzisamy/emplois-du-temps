@@ -390,6 +390,62 @@ nav.tabs button.on{color:var(--accent)}
 .whome .track{margin-top:6px}
 .whome .btn{background:var(--soft);color:var(--ink);width:42px;height:40px;padding:0;font-size:18px}
 .whome .btn.p{background:#0ea5e9;color:#fff}
+/* accueil */
+.greet{margin:0 2px 10px}
+.greet b{display:block;font-size:20px;font-weight:800;letter-spacing:-.01em}
+.greet span{display:block;font-size:13px;color:var(--muted);margin-top:3px;line-height:1.45}
+#v-home .banner{margin:0 0 10px}
+.nbar{height:5px;background:rgba(255,255,255,.22);border-radius:4px;margin-top:9px;overflow:hidden}
+.nbar i{display:block;height:100%;background:#fff;border-radius:4px;width:0}
+.ntasks{margin-top:9px}
+.ntasks label{display:flex;gap:9px;align-items:center;font-size:14px;padding:4px 0;cursor:pointer}
+.ntasks label.d span{text-decoration:line-through;opacity:.7}
+.ntasks input{width:20px;height:20px;accent-color:#34d399;flex:0 0 20px}
+.now .row2 #nowFocus{background:rgba(255,255,255,.14);color:#fff}
+.nlink{display:block;width:100%;margin-top:9px;background:none;border:0;color:#fff;opacity:.85;font:inherit;font-size:13px;font-weight:600;text-align:left;padding:0;cursor:pointer}
+.nextc{margin-top:10px;display:flex;align-items:center;gap:11px;cursor:pointer}
+.nextc .bar{align-self:stretch}
+.nextc .lbl{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.nextc .tt{font-size:15.5px;font-weight:700;margin-top:2px}
+.nextc .sb{font-size:12.5px;color:var(--muted);margin-top:2px}
+.nextc .cd{margin-left:auto;text-align:right;font-weight:800;font-size:15px;white-space:nowrap}
+.nextc .cd small{display:block;font-size:11px;color:var(--muted);font-weight:600}
+.dprog{margin-top:10px}
+.dprog .r{display:flex;justify-content:space-between;font-size:13px;font-weight:600}
+.dprog .r span{color:var(--muted)}
+.dprog .track{margin-top:7px;height:8px}
+/* plus */
+.more{display:flex;flex-direction:column;gap:8px}
+.more button{display:flex;align-items:center;gap:12px;border:1px solid var(--line);background:#fff;border-radius:14px;padding:14px;font:inherit;font-size:15px;font-weight:700;cursor:pointer;color:var(--ink);text-align:left}
+.more button span.e{font-size:22px}
+.more button small{display:block;font-weight:500;color:var(--muted);font-size:12.5px;margin-top:1px}
+.more button .bd{margin-left:auto;background:var(--ko);color:#fff;border-radius:999px;font-size:12px;padding:2px 8px}
+/* mode concentration */
+.focus{position:fixed;inset:0;z-index:30;background:linear-gradient(160deg,#0b2236,#0f3d5e 60%,#1e6091);color:#fff;display:none;flex-direction:column;align-items:center;padding:calc(18px + env(safe-area-inset-top)) 18px calc(18px + env(safe-area-inset-bottom));overflow:auto}
+.focus.open{display:flex}
+.focus .fx-top{width:100%;max-width:520px;display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:700;opacity:.85}
+.focus .fx-top button{background:rgba(255,255,255,.14);border:0;color:#fff;border-radius:10px;padding:7px 11px;font:inherit;font-weight:700;cursor:pointer}
+.focus .fx-title{font-size:21px;font-weight:800;text-align:center;margin:14px 0 4px;max-width:520px;line-height:1.3}
+.focus .fx-sub{font-size:13px;opacity:.8;text-align:center}
+.focus .fx-ring{width:230px;height:230px;margin:18px 0 8px;position:relative}
+.focus .fx-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.focus .fx-time{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.focus .fx-time b{font-size:46px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.focus .fx-time span{font-size:13px;opacity:.8;font-weight:600;margin-top:2px}
+.focus .fx-modes{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:520px;margin-top:16px}
+.focus .fx-modes button{border:1.5px solid rgba(255,255,255,.35);background:rgba(255,255,255,.08);color:#fff;border-radius:14px;padding:11px 13px;font:inherit;font-size:14px;font-weight:700;cursor:pointer;text-align:center;min-width:140px}
+.focus .fx-modes button small{display:block;font-weight:500;font-size:11.5px;opacity:.75;margin-top:2px}
+.focus .fx-btns{display:flex;gap:10px;margin-top:10px;width:100%;max-width:420px}
+.focus .fx-btns button{flex:1;border:0;border-radius:14px;padding:14px;font:inherit;font-size:15.5px;font-weight:800;cursor:pointer}
+.focus .fx-btns .p{background:rgba(255,255,255,.16);color:#fff}
+.focus .fx-btns .s{background:#fff;color:var(--accent)}
+.focus .fx-tasks{width:100%;max-width:420px;margin-top:16px;background:rgba(255,255,255,.08);border-radius:14px;padding:8px 12px}
+.focus .fx-tasks:empty{display:none}
+.focus .fx-tasks label{display:flex;gap:10px;align-items:center;padding:7px 0;font-size:14.5px;cursor:pointer}
+.focus .fx-tasks label.d span{text-decoration:line-through;opacity:.6}
+.focus .fx-tasks input{width:22px;height:22px;accent-color:#34d399;flex:0 0 22px}
+.focus .fx-tip{font-size:12px;opacity:.65;text-align:center;margin-top:14px;max-width:420px;line-height:1.5}
+.focus.brk{background:linear-gradient(160deg,#064e3b,#0d9488)}
 .toast{position:fixed;left:50%;bottom:80px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:9px 15px;border-radius:999px;font-size:13.5px;font-weight:600;opacity:0;transition:opacity .2s;pointer-events:none;z-index:20}
 .toast.show{opacity:1}
 </style>
@@ -401,34 +457,43 @@ nav.tabs button.on{color:var(--accent)}
     <span class="sync" id="sync">📱 Local</span>
   </header>
 
-  <!-- ============ PLANNING ============ -->
-  <section class="view on" id="v-plan">
+  <!-- ============ ACCUEIL (focus) ============ -->
+  <section class="view on" id="v-home">
+    <div class="greet"><b id="hgHello"></b><span id="hgSum"></span></div>
+    <div class="banner" id="eveBanner"><span id="eveTxt"></span><button class="btn" id="eveGo"></button></div>
     <div class="card now" id="nowCard" aria-live="polite">
       <div class="lbl" id="nowLbl">Maintenant</div>
       <div class="act" id="nowAct">—</div>
       <div class="time" id="nowTime"></div>
-      <div class="tasks" id="nowTasks"></div>
-      <div class="next" id="nowNext"></div>
+      <div class="nbar"><i id="nowBar"></i></div>
+      <div class="ntasks" id="nowTasks"></div>
       <div class="row2">
-        <button class="btn" id="openCur">Ouvrir ce créneau ›</button>
-        <button class="btn" id="nowImp" style="flex:0 0 auto;background:#fde047;color:#111827">⚡ Imprévu</button>
+        <button class="btn" id="nowDone">✅ Fait</button>
+        <button class="btn" id="nowFocus">🎯 Concentration</button>
+        <button class="btn" id="nowImp" style="flex:0 0 auto;background:#fde047;color:#111827">⚡</button>
         <button class="btn ghost" id="askToggle" aria-label="Voir un autre moment">🔎</button>
       </div>
+      <button class="nlink" id="openCur">Ouvrir le créneau : tâches, notes, statut ›</button>
       <div class="ask" id="askBox">
         <input type="date" id="askDate" aria-label="Date">
         <input type="time" id="askTime" value="10:00" aria-label="Heure">
         <button class="btn" id="askBtn">Voir</button>
       </div>
     </div>
+    <div class="card nextc" id="nextCard"></div>
     <div class="card top1" id="topCard"></div>
-    <div class="card ghome" id="gHome"></div>
-    <div class="streaks" id="streaks"></div>
+    <div class="card dprog" id="dayProg"></div>
     <div class="card whome" id="wHome">
       <div class="grow"><div class="lbl">💧 Eau aujourd'hui</div><div class="wv" id="whV"></div><div class="track"><i id="whBar" style="background:#0ea5e9;width:0"></i></div></div>
       <button class="btn" id="whMinus" aria-label="Retirer un verre">−</button>
       <button class="btn p" id="whPlus" aria-label="Ajouter un verre">＋</button>
     </div>
-    <div class="banner" id="eveBanner"><span id="eveTxt">🌙 C'est l'heure du bilan</span><button class="btn" id="eveGo">Faire le bilan</button></div>
+  </section>
+
+  <!-- ============ PLANNING ============ -->
+  <section class="view" id="v-plan">
+    <div class="card ghome" id="gHome" style="margin-top:0"></div>
+    <div class="streaks" id="streaks"></div>
 
     <div class="weeknav">
       <button id="prevW" aria-label="Semaine précédente">‹</button>
@@ -617,13 +682,32 @@ nav.tabs button.on{color:var(--accent)}
 </div>
 
 <nav class="tabs"><div class="in">
-  <button class="on" data-v="plan"><span>🗓️</span>Planning</button>
-  <button data-v="catch"><span>🔄</span>Rattraper</button>
-  <button data-v="bilan"><span>✅</span>Bilan</button>
+  <button class="on" data-v="home"><span>🏠</span>Accueil</button>
+  <button data-v="plan"><span>🗓️</span>Planning</button>
   <button data-v="goals"><span>🎯</span>Objectifs</button>
   <button data-v="ana"><span>📊</span>Analyse</button>
-  <button data-v="set"><span>⚙️</span>Paramètres</button>
+  <button data-v="more"><span>☰</span>Plus</button>
 </div></nav>
+
+<!-- Plus : bilan, rattraper, paramètres -->
+<div class="modal" id="moreModal"><div class="sheet">
+  <h2>☰ Plus</h2><div class="meta">Les pages que tu ouvres moins souvent.</div>
+  <div class="more" id="moreList"></div>
+  <div class="actions"><button class="btn cancel" data-close="moreModal">Fermer</button></div>
+</div></div>
+
+<!-- Mode concentration -->
+<div class="focus" id="focus" role="dialog" aria-label="Mode concentration">
+  <div class="fx-top"><span id="fxType"></span><button id="fxMin">↓ Réduire</button></div>
+  <div class="fx-title" id="fxTitle"></div>
+  <div class="fx-sub" id="fxSub"></div>
+  <div class="fx-modes" id="fxModes"></div>
+  <div class="fx-ring" id="fxRingBox"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="6"/><circle id="fxArc" cx="50" cy="50" r="45" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-dasharray="282.7" stroke-dashoffset="0"/></svg>
+    <div class="fx-time"><b id="fxClock">00:00</b><span id="fxPhase"></span></div></div>
+  <div class="fx-btns" id="fxBtns"><button class="p" id="fxPause">⏸ Pause</button><button class="s" id="fxStop">⏹ Terminer</button></div>
+  <div class="fx-tasks" id="fxTasks"></div>
+  <div class="fx-tip" id="fxTip">Astuce : active « Ne pas déranger » sur ton téléphone. Si tu quittes l'app, le minuteur continue et une notification te prévient à la fin.</div>
+</div>
 
 <!-- detail sheet -->
 <div class="modal" id="dModal">
@@ -631,6 +715,7 @@ nav.tabs button.on{color:var(--accent)}
     <h2 id="dTitle"></h2>
     <div class="meta" id="dMeta"></div>
     <div id="dOff" class="hint" style="display:none;color:var(--ko);margin:0 0 10px">Annulé par un imprévu / une mission — à rattraper.</div>
+    <button class="go" id="dFocus" style="margin:0 0 12px">🎯 Démarrer le mode concentration</button>
     <div class="lab">Statut</div>
     <div class="seg status" id="dStatus">
       <button data-v="done">✅ Fait</button><button data-v="partial">🌓 À moitié</button><button data-v="missed">❌ Pas fait</button>
@@ -959,9 +1044,10 @@ function dayScore(date){
 }
 
 /* ================= navigation ================= */
-let selDate=todayStr(), bDate=todayStr(), aWeek=wsKey(todayStr()), view="plan";
-document.querySelectorAll("nav.tabs button").forEach(b=>b.onclick=()=>go(b.dataset.v));
-function go(v){view=v;document.querySelectorAll("nav.tabs button").forEach(x=>x.classList.toggle("on",x.dataset.v===v||(["week","wiz"].includes(v)&&x.dataset.v==="set")));
+let selDate=todayStr(), bDate=todayStr(), aWeek=wsKey(todayStr()), view="home";
+document.querySelectorAll("nav.tabs button").forEach(b=>b.onclick=()=>b.dataset.v==="more"?openMore():go(b.dataset.v));
+const IN_MORE=["bilan","catch","set","week","wiz"];
+function go(v){view=v;document.querySelectorAll("nav.tabs button").forEach(x=>x.classList.toggle("on",x.dataset.v===v||(IN_MORE.includes(v)&&x.dataset.v==="more")));
   document.querySelectorAll(".view").forEach(x=>x.classList.toggle("on",x.id==="v-"+v));
   if(v==="bilan")pullWeek(wsKey(bDate));if(v==="ana"){pullWeek(aWeek);pullWeek(ymd(addDays(parse(aWeek),-7)));}
   if(v==="catch"){const t=todayStr();for(let i=-14;i<=7;i+=7)pullWeek(wsKey(ymd(addDays(parse(t),i))));}
@@ -970,16 +1056,49 @@ function go(v){view=v;document.querySelectorAll("nav.tabs button").forEach(x=>x.
 /* ================= render: planning ================= */
 function renderAll(){renderHeader();renderNow();renderTop();renderStreaks();renderWaterHome();renderGoalsHome();renderInbox();renderDays();renderList();renderSkipped();renderCatchup();renderBanner();if(view==="catch")renderCatch();if(view==="bilan")renderBilan();if(view==="ana")renderAna();if(view==="week")renderWeekEd();if(view==="goals")renderGoals();}
 let askOverride=null;
+const dur2=min=>min<60?`${min} min`:fmtH(min/60);
+// Accueil : salutation qui s'adapte au moment, Maintenant (temps restant + sous-tâches), Ensuite, progression du jour
 function renderNow(){
-  let date=todayStr(),min=nowMin(),label="Maintenant · "+nice(new Date())+" · "+hm(min);
+  let date=todayStr(),min=nowMin(),label="Maintenant · "+hm(min);
   if(askOverride){date=askOverride.date;min=askOverride.min;label=nice(parse(date))+" à "+hm(min);}
-  const{cur,nx}=findAt(date,min);
+  const{cur,nx}=findAt(date,min),today=todayStr(),rest=isRest(parse(today).getDay());
+  // salutation + résumé du jour
+  {const h=nowMin(),p=config.profile||{},nm=p.name?" "+p.name:"";
+    const hello=h<12*60?`Bonjour${nm} 👋`:h<18*60?`Bon après-midi${nm}`:`Bonsoir${nm} 🌙`;
+    const its=itemsFor(today).filter(a=>!a.off&&TY(a.k).track&&a.k!=="repos"),by={};its.forEach(a=>{by[a.k]=(by[a.k]||0)+dur(a);});
+    const parts=Object.entries(by).sort((a,b)=>b[1]-a[1]).map(([k,hh])=>{const n=its.filter(a=>a.k===k).length;return k==="cours"?`${TY(k).e} ${n} cours`:`${TY(k).e} ${fmtH(hh)} ${TY(k).n.toLowerCase()}`;});
+    $("hgHello").textContent=hello;
+    $("hgSum").textContent=rest&&!its.length?"😴 Jour de repos : profite, rien de professionnel aujourd'hui 🌿":its.length?"Aujourd'hui : "+parts.slice(0,4).join(" · "):"Rien de prévu aujourd'hui.";}
+  // maintenant
   $("nowLbl").textContent=label;$("nowCard").classList.toggle("alert",!!(cur&&cur.ev));
-  if(cur){const T=TY(cur.k);$("nowAct").textContent=T.e+" "+cur.t;$("nowTime").textContent=showT(cur.s)+" → "+showT(cur.e)+(subOf(date,cur)?" · "+subOf(date,cur):"");
-    const tk=tasksOf(date,cur).filter(t=>!t.d).slice(0,3);$("nowTasks").innerHTML=tk.length?"À faire : "+tk.map(t=>esc(t.t)).join(" · "):"";}
-  else{$("nowAct").textContent="🌿 Temps libre";$("nowTime").textContent="Rien de prévu : bois un verre d'eau.";$("nowTasks").textContent="";}
-  $("nowNext").innerHTML=nx?`Ensuite : <b>${TY(nx.k).e} ${esc(nx.t)}</b> à ${nx.s}`:"Ensuite : 🌙 dodo à 22h30";
+  const show=cur&&cur.k!=="sommeil";
+  if(show){const T=TY(cur.k),s=m(cur.s),e=m(cur.e),left=Math.max(0,e-min),sb=subOf(date,cur);
+    $("nowAct").textContent=T.e+" "+cur.t;
+    $("nowTime").textContent=`${showT(cur.s)} → ${showT(cur.e)}${sb?" · "+sb:""}${askOverride?"":` · encore ${dur2(left)}`}`;
+    $("nowBar").style.width=Math.min(100,Math.max(0,Math.round((min-s)/(e-s)*100)))+"%";
+    const tk=tasksOf(date,cur);
+    $("nowTasks").innerHTML=tk.slice(0,5).map((t,i)=>`<label class="${t.d?"d":""}"><input type="checkbox" data-nt="${i}" ${t.d?"checked":""}><span>${esc(t.t)}</span></label>`).join("")+(tk.length>5?`<div style="font-size:12.5px;opacity:.8">+ ${tk.length-5} autre(s)</div>`:"");
+    $("nowTasks").querySelectorAll("[data-nt]").forEach(c=>c.onchange=()=>{const o=occ(date,cur.id,true);if(!o.tasks)o.tasks=tasksOf(date,cur).map(x=>({...x}));o.tasks[+c.dataset.nt].d=c.checked;autoStatus(o);touch("weeks/"+wsKey(date));renderAll();});
+    const o=occ(date,cur.id)||{},trk=TY(cur.k).track;
+    $("nowDone").style.display=trk?"":"none";$("nowDone").textContent=o.st==="done"?"✅ Fait ✓":"✅ Fait";
+    $("nowFocus").style.display=["repas"].includes(cur.k)?"none":"";$("openCur").style.display="";}
+  else{$("nowAct").textContent=cur?"🌙 Dodo":"🌿 Temps libre";$("nowTime").textContent=cur?"Repose-toi bien.":"Rien de prévu : bois un verre d'eau.";$("nowBar").style.width="0";$("nowTasks").innerHTML="";
+    $("nowDone").style.display="none";$("nowFocus").style.display="none";$("openCur").style.display="none";}
+  // ensuite
+  const nc=$("nextCard");
+  if(nx){const T=TY(nx.k),inM=m(nx.s)-min,sb=subOf(date,nx);nc.style.display="";
+    nc.innerHTML=`<div class="bar" style="background:${T.c}"></div><div style="min-width:0"><div class="lbl">Ensuite</div><div class="tt">${T.e} ${esc(nx.t)}</div><div class="sb">${nx.s} → ${showT(nx.e)}${sb?" · "+esc(sb):""}</div></div>
+      <div class="cd">${inM>0?dur2(inM):"maintenant"}<small>${inM>0?"dans":""}</small></div>`;
+    nc.onclick=()=>openDetail(date,nx.id);}
+  else{nc.style.display="";nc.onclick=null;nc.innerHTML=`<div style="min-width:0"><div class="lbl">Ensuite</div><div class="tt">🌙 Fin de journée</div><div class="sb">Plus rien de prévu aujourd'hui.</div></div>`;}
+  // progression du jour
+  {const its=itemsFor(today).filter(a=>!a.off&&inScore(a.k)),dn=its.filter(a=>{const o=occ(today,a.id);return o&&(o.st==="done"||o.st==="partial");}).length,sc=dayScore(today);
+    $("dayProg").style.display=its.length?"":"none";
+    $("dayProg").innerHTML=`<div class="r"><b>📈 Ma journée</b><span>${dn}/${its.length} activités faites${sc.pct!=null?" · "+sc.pct+" %":""}</span></div><div class="track"><i style="width:${its.length?Math.round(dn/its.length*100):0}%;background:var(--ok)"></i></div>`;}
 }
+$("nowDone").onclick=()=>{const date=askOverride?askOverride.date:todayStr(),min=askOverride?askOverride.min:nowMin(),{cur}=findAt(date,min);if(!cur)return;
+  const o=occ(date,cur.id)||{};setStatus(date,cur.id,o.st==="done"?undefined:"done");renderAll();if(o.st!=="done")toast("✅ "+cur.t+" : fait");};
+$("nowFocus").onclick=()=>{const date=askOverride?askOverride.date:todayStr(),min=askOverride?askOverride.min:nowMin(),{cur}=findAt(date,min);if(cur)openFocus(date,cur.id);};
 function renderDays(){
   const ws=weekStart(parse(selDate)),we=addDays(ws,6),today=todayStr();
   $("weekLbl").textContent=`Semaine du ${ws.getDate()} ${MONTHS[ws.getMonth()]} au ${we.getDate()} ${MONTHS[we.getMonth()]}`;
@@ -1126,13 +1245,24 @@ function renderCatchup(){
   el.innerHTML=open.length?`<span>🔄 ${open.length} activité${open.length>1?'s':''} à rattraper · ${fmtH(hrs)}</span><span>Voir ›</span>`:`<span>✅ Rien à rattraper</span><span></span>`;
   el.onclick=()=>go("catch");
 }
+// Une seule alerte à la fois, la plus urgente : concentration en cours > bilan du soir > rattrapage > eau
 function renderBanner(){
-  const t=todayStr(),sc=dayScore(t),left=sc.n-sc.rated;
-  const on=t>=config.settings.start&&nowMin()>=m(config.settings.bilanAt)&&left>0;
-  $("eveBanner").classList.toggle("on",on);
-  if(on)$("eveTxt").textContent=`🌙 Bilan du jour : ${left} activité${left>1?'s':''} à noter`;
+  const t=todayStr(),sc=dayScore(t),left=sc.n-sc.rated,nm=nowMin(),G=config.settings,b=$("eveBanner");let A=null;
+  const fx=typeof FX!=="undefined"&&FX&&FX.running;
+  if(fx){const it=findItem(FX.date,FX.id);A={t:`🎯 Concentration en cours${it?" : "+it.t:""}`,b:"Reprendre",fn:()=>showFocus()};}
+  else if(t>=G.start&&nm>=m(G.bilanAt)&&left>0)A={t:`🌙 Bilan du soir : ${left} activité${left>1?'s':''} à noter`,b:"Faire le bilan",fn:()=>{bDate=t;go("bilan");}};
+  else{const open=catchRows().filter(r=>!r.rs);
+    if(open.length)A={t:`🔄 ${open.length} activité${open.length>1?'s':''} à rattraper`,b:"Voir",fn:()=>go("catch")};
+    else{const w=(W(wsKey(t)).water[t])||0,from=8*60,to=21*60,exp=nm<=from?0:Math.floor(G.water*Math.min(1,(nm-from)/(to-from)));
+      if(exp-w>=2)A={t:`💧 ${w} verre${w>1?'s':''} bu${w>1?'s':''} : vise ${exp} à cette heure`,b:"＋1 verre",fn:()=>addWater(t,1)};}}
+  b.classList.toggle("on",!!A);if(A){$("eveTxt").textContent=A.t;$("eveGo").textContent=A.b;$("eveGo").onclick=A.fn;}
 }
-$("eveGo").onclick=()=>{bDate=todayStr();go("bilan");};
+/* ---- Plus ---- */
+function openMore(){const t=todayStr(),sc=dayScore(t),left=sc.n-sc.rated,open=catchRows().filter(r=>!r.rs).length;
+  const L=[["bilan","✅","Bilan du jour","Noter ce que tu as fait, eau, note de la journée",left],["catch","🔄","Rattraper","Replanifier ce qui n'a pas été fait",open],["set","⚙️","Paramètres","Planning, assistant, catégories, rappels, sauvegarde",0]];
+  $("moreList").innerHTML=L.map(([v,e,n,s,c])=>`<button data-mv="${v}"><span class="e">${e}</span><span>${n}<small>${s}</small></span>${c?`<span class="bd">${c}</span>`:""}</button>`).join("");
+  $("moreList").querySelectorAll("[data-mv]").forEach(b=>b.onclick=()=>{closeM("moreModal");if(b.dataset.mv==="bilan")bDate=todayStr();go(b.dataset.mv);});
+  openM("moreModal");}
 
 /* ================= detail sheet ================= */
 let det=null,tNote=null;
@@ -1273,7 +1403,7 @@ $("addBtn").onclick=()=>openNew({s:"09:00",e:"10:00",t:"",k:"dev",mode:"once",da
 /* ================= actions rapides ================= */
 const openM=id=>$(id).classList.add("open"), closeM=id=>$(id).classList.remove("open");
 document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>closeM(b.dataset.close));
-["qModal","iModal","nModal","rModal","sModal","xModal","gModal"].forEach(id=>$(id).addEventListener("click",e=>{if(e.target.id===id)closeM(id);}));
+["qModal","iModal","nModal","rModal","sModal","xModal","gModal","moreModal"].forEach(id=>$(id).addEventListener("click",e=>{if(e.target.id===id)closeM(id);}));
 $("fab").onclick=()=>openM("qModal");
 document.querySelectorAll("#qModal [data-q]").forEach(b=>b.onclick=()=>{closeM("qModal");const q=b.dataset.q;
   if(q==="imp")quickImp();if(q==="mis")quickMis();if(q==="note")quickNote();if(q==="bilan"){bDate=todayStr();go("bilan");}
@@ -1389,14 +1519,14 @@ let dnT;$("dayNote").oninput=()=>{const w=W(wsKey(bDate));w.notes[bDate]=$("dayN
 
 /* ================= render: analyse ================= */
 function weekStats(wk){
-  const ws=parse(wk),today=todayStr(),days=[],types={},subs={};let spN=0,spMin=0,spX=0,plan=0,got=0,rated=0,n=0,tk=0,tkd=0,water=0,wdays=0,lostDev=0,unrated=0,planAll=0,lostAll=0,langMin=0,langPlan=0,pastDays=0;
+  const ws=parse(wk),today=todayStr(),days=[],types={},subs={};let spN=0,spMin=0,spX=0,plan=0,got=0,rated=0,n=0,tk=0,tkd=0,water=0,wdays=0,lostDev=0,unrated=0,planAll=0,lostAll=0,langMin=0,langPlan=0,pastDays=0,focusMin=0;
   for(let i=0;i<7;i++){const d=addDays(ws,i),k=ymd(d),past=k<=today&&k>=config.settings.start;
     let dp=0,dg=0;if(past)pastDays++;
     itemsFor(k).forEach(a=>{
       if(a.off&&a.k==="dev")lostDev+=dur(a);
       if(past&&a.off&&inScore(a.k))lostAll+=dur(a);
       if(a.off||!TY(a.k).track||!past)return;
-      const h=dur(a),o=occ(k,a.id);n++;if(inScore(a.k))planAll+=h;
+      const h=dur(a),o=occ(k,a.id);n++;if(inScore(a.k))planAll+=h;if(o&&o.focus)focusMin+=o.focus.min||0;
       if(a.k==="anglais"){langPlan+=h*60;if(o&&(o.st==="done"||o.st==="partial"))langMin+=o.lang&&o.lang.min?o.lang.min:Math.round(h*60*ST[o.st].w);}
       types[a.k]=types[a.k]||{plan:0,got:0,cnt:0,done:0,miss:0};types[a.k].plan+=h;types[a.k].cnt++;
       if(o&&o.st){rated++;const g=h*ST[o.st].w;if(inScore(a.k)){plan+=h;dp+=h;got+=g;dg+=g;}types[a.k].got+=g;const sk=a.k+"|"+subOf(k,a);subs[sk]=(subs[sk]||0)+g;if(o.st==="done")types[a.k].done++;if(o.st==="missed")types[a.k].miss++;}else unrated++;
@@ -1408,7 +1538,7 @@ function weekStats(wk){
       (((weeks[wk]||{}).sport||{})[k]||[]).forEach(x=>{spN++;spX++;spMin+=x.min||0;});}
     days.push({d,k,past,pct:dp?Math.round(dg/dp*100):null,water:wv});
   }
-  return{days,types,subs,pct:plan?Math.round(got/plan*100):null,rated,n,unrated,tk,tkd,water:wdays?water/wdays:null,lostDev,spN,spMin,spX,planAll,got,lostAll,langMin,langPlan,pastDays};
+  return{days,types,subs,pct:plan?Math.round(got/plan*100):null,rated,n,unrated,tk,tkd,water:wdays?water/wdays:null,lostDev,spN,spMin,spX,planAll,got,lostAll,langMin,langPlan,pastDays,focusMin};
 }
 // Tous les KPI d'une semaine : valeur, objectif (g), unité. Plus haut = mieux.
 const r1=x=>Math.round(x*10)/10;
@@ -1426,7 +1556,8 @@ function kpiOf(wk){const s=weekStats(wk),G=config.settings,T=s.types,pc=(a,b)=>b
     {k:"water",e:"💧",n:"Eau / jour",u:" verres",v:s.water==null?null:r1(s.water),g:G.water},
     {k:"tasks",e:"☑",n:"Sous-tâches faites",u:"%",v:s.tk?pc(s.tkd,s.tk):null,g:80},
     {k:"bilan",e:"✅",n:"Bilan rempli",u:"%",v:s.n?pc(s.rated,s.n):null,g:100},
-    {k:"top",e:"🎯",n:"Tâche n°1",u:"%",v:tn?pc(td,tn):null,g:80}]};}
+    {k:"top",e:"🎯",n:"Tâche n°1",u:"%",v:tn?pc(td,tn):null,g:80},
+    {k:"focus",e:"⏱️",n:"Temps de concentration",u:" min",v:has?s.focusMin:null,g:0}]};}
 const attain=x=>x.v==null||!x.g?null:Math.round(x.v/x.g*100);
 // Indice de respect des objectifs : moyenne des % atteints (plafonnés à 100)
 function indexOf(K){const a=K.list.map(attain).filter(v=>v!=null);return a.length&&K.rated?Math.round(a.reduce((s,v)=>s+Math.min(100,v),0)/a.length):null;}
@@ -2008,7 +2139,7 @@ function shiftDate(level,dateStr,n){const d=parse(dateStr);
   return ymd(new Date(d.getFullYear()+n,0,1));}
 // Statistiques sur une plage de dates (jours passés et depuis le début du programme)
 function rangeStats(from,to){const today=todayStr(),st=config.settings.start;
-  const r={h:{},cours:0,sportN:0,sportMin:0,lang:0,water:0,wDays:0,waterOK:0,plan:0,got:0,tkd:0,top:0,bilan:0,elapsed:0,total:0};
+  const r={h:{},focus:0,cours:0,sportN:0,sportMin:0,lang:0,water:0,wDays:0,waterOK:0,plan:0,got:0,tkd:0,top:0,bilan:0,elapsed:0,total:0};
   for(let d=parse(from);ymd(d)<=to;d=addDays(d,1)){const k=ymd(d);r.total++;if(k>today||k<st)continue;r.elapsed++;
     const wk=weeks[wsKey(k)]||{};let n=0,rated=0;
     itemsFor(k).forEach(a=>{if(a.off||!TY(a.k).track)return;const o=occ(k,a.id),h=dur(a),w=o&&o.st?ST[o.st].w:0;n++;if(o&&o.st)rated++;
@@ -2016,7 +2147,7 @@ function rangeStats(from,to){const today=todayStr(),st=config.settings.start;
       if(a.k==="cours"&&o&&o.st==="done")r.cours++;
       if(a.k==="sport"&&w>0){r.sportN++;r.sportMin+=o.sport&&o.sport.min?o.sport.min:Math.round(h*60*w);}
       if(a.k==="anglais"&&w>0)r.lang+=o.lang&&o.lang.min?o.lang.min:Math.round(h*60*w);
-      if(o&&o.tasks)r.tkd+=o.tasks.filter(t=>t.d).length;});
+      if(o&&o.tasks)r.tkd+=o.tasks.filter(t=>t.d).length;if(o&&o.focus)r.focus+=o.focus.min||0;});
     ((wk.sport||{})[k]||[]).forEach(x=>{r.sportN++;r.sportMin+=x.min||0;});
     const wv=(wk.water||{})[k]||0;if(k!==today||wv){r.water+=wv;r.wDays++;}if(wv>=config.settings.water)r.waterOK++;
     const tp=(wk.top||{})[k];if(tp&&tp.d)r.top++;if(n&&rated===n)r.bilan++;}
@@ -2033,7 +2164,8 @@ const METRICS={
   pct:{n:"Réalisation du planning",u:"%",get:r=>r.plan?Math.round(r.got/r.plan*100):0},
   tasks:{n:"Sous-tâches terminées",u:"tâches",sum:1,get:r=>r.tkd},
   top:{n:"Tâche n°1 réalisée",u:"jours",sum:1,get:r=>r.top},
-  bilan:{n:"Bilan complet",u:"jours",sum:1,get:r=>r.bilan}};
+  bilan:{n:"Bilan complet",u:"jours",sum:1,get:r=>r.bilan},
+  focus:{n:"Minutes de concentration",u:"min",sum:1,get:r=>r.focus}};
 function metricDef(key){if(METRICS[key])return METRICS[key];if(key&&key.startsWith("h:")){const k=key.slice(2);return{n:"Heures de "+TY(k).n.toLowerCase(),u:"h",sum:1,get:r=>r1(r.h[k]||0)};}return{n:"?",u:"",get:()=>0};}
 const metricKeys=()=>[...Object.keys(METRICS),...Object.keys(config.types).filter(k=>!["dev","prep","sommeil","repas"].includes(k)&&TY(k).track).map(k=>"h:"+k)];
 const nfr=v=>String(v).replace(".",",");
@@ -2178,15 +2310,91 @@ function renderGoalsHome(){const el=$("gHome"),t=todayStr();if(!config.goals||!c
     if(g.kind==="check"){const L=(g.log||{})[dp.key]||{};setLog(g,dp.key,{done:!L.done});renderAll();if(!L.done)toast("🎯 "+g.title+" ✓");}
     else{GV={level:"day",date:t};go("goals");}});}
 
+/* ================= MODE CONCENTRATION ================= */
+// État sauvegardé sur le téléphone : le minuteur continue même si l'app est fermée (calcul par horodatage).
+// FX = {date,id,mode:"slot"|"pomo"|"N"|"free",plan(min de travail visé),phase:"work"|"break",segStart(ms|null),acc(ms phase en cours),work(ms total travaillé),pomoN,running}
+var FX=null,fxTimer=null,fxLock=null;
+const LF="edt-v3-focus",POMO=25,BREAK=5;
+function fxSave(){try{FX?localStorage.setItem(LF,JSON.stringify(FX)):localStorage.removeItem(LF);}catch(e){}}
+function fxLoad(){try{FX=JSON.parse(localStorage.getItem(LF))||null;}catch(e){FX=null;}}
+const fxPhaseMs=()=>FX.acc+(FX.segStart?Date.now()-FX.segStart:0);
+const fxWorkMs=()=>FX.work+(FX.phase==="work"?fxPhaseMs():0);
+const fxTarget=()=>FX.phase==="break"?BREAK:FX.mode==="pomo"?POMO:FX.plan;   // minutes de la phase (0 = chrono libre)
+function fxEndAt(){if(!FX||!FX.running||!FX.segStart)return null;const T=fxTarget();if(!T)return null;return new Date(FX.segStart+T*60000-FX.acc);}
+function openFocus(date,id){const a=findItem(date,id);if(!a)return;
+  if(FX&&FX.running&&!(FX.date===date&&FX.id===id)){const o=findItem(FX.date,FX.id);
+    choose("Une concentration est déjà en cours",o?o.t:"",[{l:"↩️ Reprendre la séance en cours",fn:()=>showFocus()},{l:"⏹ La terminer et commencer celle-ci",danger:1,fn:()=>{fxFinish(true);setTimeout(()=>openFocus(date,id),50);}}]);return;}
+  if(!FX||!FX.running)FX={date,id,mode:null,plan:0,phase:"work",segStart:null,acc:0,work:0,pomoN:1,running:false};
+  showFocus();}
+function showFocus(){$("dModal").classList.remove("open");$("focus").classList.add("open");drawFocus();clearInterval(fxTimer);fxTimer=setInterval(tickFocus,1000);
+  try{if(navigator.wakeLock&&!fxLock)navigator.wakeLock.request("screen").then(l=>{fxLock=l;}).catch(()=>{});}catch(e){}}
+function hideFocus(){$("focus").classList.remove("open");clearInterval(fxTimer);try{fxLock&&fxLock.release();}catch(e){}fxLock=null;renderAll();}
+function drawFocus(){const a=findItem(FX.date,FX.id);if(!a){FX=null;fxSave();hideFocus();return;}
+  const T=TY(a.k),date=FX.date,left=Math.max(0,m(a.e)-(date===todayStr()?nowMin():m(a.s))),started=FX.running||FX.work>0;
+  $("fxType").textContent=`${T.e} ${T.n}${subOf(date,a)?" · "+subOf(date,a):""}`;
+  $("fxTitle").textContent=a.t;$("fxSub").textContent=`${nice(parse(date))} · ${a.s} → ${showT(a.e)}`;
+  $("fxModes").style.display=started?"none":"";$("fxRingBox").style.display=started?"":"none";$("fxBtns").style.display=started?"":"none";
+  if(!started){const slot=Math.max(5,left||Math.round(dur(a)*60));
+    const M=[["slot",`⏳ Jusqu'à la fin`,`${slot} min · fin à ${showT(a.e)}`],["pomo","🍅 Pomodoro",`${POMO} min + ${BREAK} min de pause`],["15","15 min",""],["30","30 min",""],["45","45 min",""],["60","1 h",""],["free","⏱️ Chrono libre","sans limite"]];
+    $("fxModes").innerHTML=M.map(([v,l,s])=>`<button data-fm="${v}">${l}${s?`<small>${s}</small>`:""}</button>`).join("");
+    $("fxModes").querySelectorAll("[data-fm]").forEach(b=>b.onclick=()=>{const v=b.dataset.fm;FX.mode=/^\d+$/.test(v)?"N":v;FX.plan=v==="slot"?slot:/^\d+$/.test(v)?+v:0;
+      FX.running=true;FX.segStart=Date.now();FX.acc=0;fxSave();rescheduleNotifs();drawFocus();});}
+  // sous-tâches
+  const tk=tasksOf(date,a);
+  $("fxTasks").innerHTML=tk.length?tk.map((t,i)=>`<label class="${t.d?"d":""}"><input type="checkbox" data-ft="${i}" ${t.d?"checked":""}><span>${esc(t.t)}</span></label>`).join(""):"";
+  $("fxTasks").querySelectorAll("[data-ft]").forEach(c=>c.onchange=()=>{const o=occ(date,a.id,true);if(!o.tasks)o.tasks=tasksOf(date,a).map(x=>({...x}));o.tasks[+c.dataset.ft].d=c.checked;autoStatus(o);touch("weeks/"+wsKey(date));drawFocus();
+    if(o.tasks.every(x=>x.d))toast("☑ Toutes les sous-tâches sont faites !");});
+  $("fxPause").textContent=FX.segStart?"⏸ Pause":"▶ Reprendre";
+  tickFocus();}
+let fxBeeped=false;
+function tickFocus(){if(!FX||!FX.running){return;}
+  const T=fxTarget(),ms=fxPhaseMs(),brk=FX.phase==="break";$("focus").classList.toggle("brk",brk);
+  let shown,frac,ph;
+  if(T){const rem=T*60000-ms;shown=Math.abs(rem);frac=Math.min(1,ms/(T*60000));
+    ph=brk?"☕ Pause":rem>=0?(FX.mode==="pomo"?`🍅 Pomodoro n°${FX.pomoN}`:FX.segStart?"Concentration":"En pause"):"⏰ Temps écoulé · en plus";
+    if(rem<=0&&!fxBeeped){fxBeeped=true;fxAlarm();
+      if(FX.mode==="pomo"){if(brk){FX.phase="work";FX.pomoN++;toast("🍅 C'est reparti !");}else{FX.work+=ms;FX.phase="break";toast("☕ Pause de 5 minutes");}
+        FX.acc=0;FX.segStart=Date.now();fxSave();rescheduleNotifs();fxBeeped=false;return tickFocus();}
+      else toast("⏰ Temps prévu écoulé : termine quand tu veux");}
+    if(rem>0)fxBeeped=false;}
+  else{shown=ms;frac=(ms%3600000)/3600000;ph=FX.segStart?"⏱️ Chrono":"En pause";}
+  const s=Math.floor(shown/1000),hh=Math.floor(s/3600),mm=Math.floor(s%3600/60),ss=s%60;
+  $("fxClock").textContent=(T&&T*60000-ms<0?"+":"")+(hh?hh+":"+pad(mm):pad(mm))+":"+pad(ss);
+  $("fxPhase").textContent=ph+(FX.mode!=="free"||brk?"":"")+` · ${Math.round(fxWorkMs()/60000)} min de travail`;
+  $("fxArc").style.strokeDashoffset=String(282.7*(1-frac));}
+function fxAlarm(){try{navigator.vibrate&&navigator.vibrate([300,150,300,150,500]);}catch(e){}
+  try{const C=new (window.AudioContext||window.webkitAudioContext)();[0,.35,.7].forEach(t=>{const o=C.createOscillator(),g=C.createGain();o.frequency.value=880;o.connect(g);g.connect(C.destination);g.gain.setValueAtTime(.25,C.currentTime+t);g.gain.exponentialRampToValueAtTime(.001,C.currentTime+t+.3);o.start(C.currentTime+t);o.stop(C.currentTime+t+.32);});}catch(e){}}
+$("fxPause").onclick=()=>{if(!FX)return;if(FX.segStart){FX.acc+=Date.now()-FX.segStart;FX.segStart=null;}else FX.segStart=Date.now();fxSave();rescheduleNotifs();drawFocus();};
+$("fxMin").onclick=()=>{if(FX&&!FX.running&&!FX.work){FX=null;fxSave();}hideFocus();};
+$("fxStop").onclick=()=>fxFinish(false);
+// Terminer : enregistre le temps réel de travail, puis demande le statut
+function fxFinish(silent){if(!FX)return;const f=FX,workMin=Math.max(0,Math.round(fxWorkMs()/60000)),a=findItem(f.date,f.id);
+  FX=null;fxSave();hideFocus();rescheduleNotifs();if(!a)return;
+  const o=occ(f.date,f.id,true);if(workMin>0){o.focus={min:((o.focus&&o.focus.min)||0)+workMin,n:((o.focus&&o.focus.n)||0)+1,last:new Date().toISOString()};
+    if(a.k==="sport")o.sport=Object.assign({},o.sport,{min:((o.sport&&o.sport.min)||0)+workMin});
+    if(a.k==="anglais")o.lang=Object.assign({},o.lang,{min:((o.lang&&o.lang.min)||0)+workMin});}
+  touch("weeks/"+wsKey(f.date));renderAll();if(silent)return;
+  const tk=o.tasks||tasksOf(f.date,a),all=tk.length&&tk.every(t=>t.d);
+  choose(`🎯 ${workMin} min de concentration`,`${a.t} · c'était comment ?`,[
+    {l:"✅ Fait",sub:all?"Toutes les sous-tâches sont cochées.":"Coche toutes les sous-tâches.",fn:()=>setStatus(f.date,f.id,"done")},
+    {l:"🌓 À moitié",sub:"Il reste des choses à faire : elles iront dans « Rattraper ».",fn:()=>setStatus(f.date,f.id,"partial")},
+    {l:"⏭️ Je continuerai plus tard",sub:"Le temps est enregistré, sans changer le statut.",fn:()=>{}}]);}
+$("dFocus").onclick=()=>{if(det)openFocus(det.date,det.id);};
+// Rappels : ajoute la fin de la séance aux notifications programmées
+const _buildNotifs=buildNotifs;
+buildNotifs=function(){const L=_buildNotifs(),at=fxEndAt();if(at&&at>new Date()){const a=findItem(FX.date,FX.id);
+  L.push({id:9000,at,title:FX.phase==="break"?"☕ Fin de la pause":"⏰ Séance de concentration terminée",body:(a?a.t+" · ":"")+"Reviens dans l'app pour la suite.",extra:{view:"focus"}});}return L;};
+fxLoad();
+
 /* ================= start ================= */
 loadLocal();renderAll();initDb();
 function nativeInit(){const B=window.NativeBridge;if(!B||!B.isNative)return;rescheduleNotifs();
   B.onResume(()=>{askOverride=null;renderAll();rescheduleNotifs();});
   if(B.onPause)B.onPause(()=>{if(bkDirty)autoBackup();});
   setTimeout(()=>{const l=lastBk();if(!l||ymd(new Date(l.at))!==todayStr())autoBackup();},4000);
-  B.onNotificationTap(x=>{if(!x)return;if(x.view==="bilan"){bDate=x.date||todayStr();go("bilan");}else if(x.id&&x.date){selDate=x.date;go("plan");setTimeout(()=>openDetail(x.date,x.id),200);}else go("plan");});}
+  B.onNotificationTap(x=>{if(!x)return;if(x.view==="focus"&&FX){go("home");showFocus();}else if(x.view==="bilan"){bDate=x.date||todayStr();go("bilan");}else if(x.id&&x.date){selDate=x.date;go("home");setTimeout(()=>openDetail(x.date,x.id),200);}else go("home");});}
 if(window.NativeBridge)nativeInit();else window.addEventListener("nativebridge",nativeInit);
-setInterval(()=>{const ae=document.activeElement;if(ae&&ae.tagName==='INPUT'||ae&&ae.tagName==='TEXTAREA')return;if(view!=="wiz"&&!["modal","dModal","pModal","qModal","iModal","nModal","rModal","sModal","xModal","gModal"].some(id=>$(id).classList.contains("open"))&&!askOverride)renderAll();},60000);
+setInterval(()=>{const ae=document.activeElement;if(ae&&ae.tagName==='INPUT'||ae&&ae.tagName==='TEXTAREA')return;if(view!=="wiz"&&!["modal","dModal","pModal","qModal","iModal","nModal","rModal","sModal","xModal","gModal","moreModal"].some(id=>$(id).classList.contains("open"))&&!askOverride)renderAll();},60000);
 </script>
 </body>
 </html>

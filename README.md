@@ -15,6 +15,20 @@ Chaque modification envoyée sur `main` fabrique automatiquement une nouvelle ve
 publiée dans **Releases**. Installe le nouvel APK par-dessus l'ancien : tes données sont gardées
 (la clé de signature est fixe : `keystore/app.keystore`).
 
+## 🏠 Accueil et navigation
+- Barre du bas : 🏠 Accueil · 🗓️ Planning · 🎯 Objectifs · 📊 Analyse · ☰ Plus (Bilan, Rattraper, Paramètres).
+- L'accueil montre l'essentiel : salutation et résumé du jour (adapté au matin, à la journée, au soir, au jour de repos),
+  l'activité en cours avec le temps restant et ses sous-tâches à cocher, la suivante avec un compte à rebours,
+  la tâche n°1, une seule alerte à la fois (concentration en cours › bilan du soir › rattrapage › eau),
+  la progression du jour et l'eau.
+
+## 🎯 Mode concentration
+- Depuis l'accueil (« 🎯 Concentration ») ou depuis n'importe quelle activité.
+- Jusqu'à la fin du créneau, 🍅 Pomodoro 25 + 5 min, 15/30/45/60 min ou chrono libre.
+- Plein écran, sous-tâches cochables, pause, son + vibration à la fin, notification si l'app est fermée,
+  écran maintenu allumé. À la fin, le temps réel est enregistré (aussi pour le sport et les langues)
+  et l'app demande le statut. Le temps de concentration apparaît dans l'Analyse et peut devenir un objectif.
+
 ## Configurer son planning
 - ⚙️ Paramètres → 🧭 **Assistant** : profil et rythme → repas → cours → travail enseignant → développement
   → sport → eau → autres activités → vérification (chevauchements, objectifs) → création.
