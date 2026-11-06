@@ -810,7 +810,7 @@ nav.tabs button.on{color:var(--accent)}
   <h2>Que veux-tu faire ?</h2><div class="meta">Un toucher, presque rien à écrire.</div>
   <div class="big">
     <button data-q="imp"><span>⚡</span>Imprévu<small>il se passe quelque chose</small></button>
-    <button data-q="mis"><span>🚗</span>Mission<small>sortie entreprise</small></button>
+    <button data-q="mis" id="qMis"><span>🚗</span>Déplacement<small>mission, sortie</small></button>
     <button data-q="note"><span>📌</span>Note rapide<small>à ne pas oublier</small></button>
     <button data-q="bilan"><span>✅</span>Bilan du jour<small>cocher ce que j'ai fait</small></button>
     <button data-q="sport"><span>🏅</span>Séance faite<small>hors planning (sport…)</small></button>
@@ -914,26 +914,26 @@ const DEF_TYPES={
 // ---- Profils métier : chacun apporte ses catégories (on peut en cumuler plusieurs) ----
 const mkCat=(n,e,c,o)=>Object.assign({n,e,c,track:true,unit:"h",goal:0,goalMin:0,detail:"none",kpi:true,main:true,streak:false,subs:[],lib:[]},o);
 const PROFILES={
-  teacher:{n:"Enseignant",e:"👨‍🏫",d:"cours, préparation, corrections",types:{
+  teacher:{n:"Enseignant",e:"👨‍🏫",d:"cours, préparation, corrections",mis:"Sortie / déplacement",types:{
     cours:mkCat("Cours en classe","👨‍🏫","#2563eb",{unit:"sess",subL:"Niveau / classe",subs:["Classe A","Classe B"],lib:["Appel / absences","Leçon","Exercice d'application","Cahier de texte rempli","Évaluation rapide"]}),
     prep:mkCat("Travail enseignant","📝","#a16207",{subs:["Préparer les cours","Corriger les copies","Réunion","Formation","Surveillance d'examen","Saisie des notes"],lib:["Fiche pédagogique","Exercices + corrigé","Imprimer les copies","Corriger 10 copies","Saisir les notes"]})}},
-  dev:{n:"Développeur / informatique",e:"💻",d:"projets, tickets, code",types:{
+  dev:{n:"Développeur / informatique",e:"💻",d:"projets, tickets, code",mis:"Mission entreprise",types:{
     dev:mkCat("Développement","💻","#7c3aed",{goal:12,streak:true,subL:"Projet",subs:["Projet principal","Projet personnel"],lib:["Corriger un bug","Nouvelle fonctionnalité","Revue de code","Tests","Déploiement","Documentation","Réunion d'équipe","Répondre aux tickets"]})}},
   student:{n:"Étudiant",e:"🎓",d:"cours, révisions, devoirs",types:{
     p_cours:mkCat("Cours / amphi","🏫","#2563eb",{unit:"sess",subL:"Matière",subs:["Matière 1","Matière 2"],lib:["Prendre des notes","Poser une question"]}),
     p_rev:mkCat("Révisions","📚","#0891b2",{goal:10,detail:"learn",streak:true,subL:"Matière",subs:["Matière 1","Matière 2"],skills:["Relire le cours","Fiches","Exercices","Annales","Par cœur"],lib:["Faire une fiche","10 exercices","Une annale"]}),
     p_dev:mkCat("Devoirs / projets","✏️","#a16207",{subL:"Matière",lib:["Rendre le devoir","Avancer le projet"]})}},
-  office:{n:"Employé de bureau",e:"🏢",d:"dossiers, réunions, e-mails",types:{
+  office:{n:"Employé de bureau",e:"🏢",d:"dossiers, réunions, e-mails",mis:"Déplacement professionnel",types:{
     p_bur:mkCat("Travail au bureau","🗂️","#475569",{goal:35,subL:"Dossier",subs:["Dossiers","E-mails","Administratif"],lib:["Traiter les e-mails","Avancer un dossier","Classer"]}),
     p_reu:mkCat("Réunions","👥","#7c3aed",{unit:"sess",main:false,subs:["Équipe","Client","Direction"],lib:["Préparer l'ordre du jour","Compte rendu"]})}},
-  sales:{n:"Commercial / terrain",e:"🤝",d:"visites, prospection, devis",types:{
+  sales:{n:"Commercial / terrain",e:"🤝",d:"visites, prospection, devis",mis:"Tournée clients",types:{
     p_vis:mkCat("Visites clients","🤝","#16a34a",{unit:"sess",goal:15,streak:true,subL:"Client",subs:["Prospect","Client fidèle"],lib:["Préparer la visite","Présenter l'offre","Compte rendu"]}),
     p_pro:mkCat("Prospection / appels","📞","#0e7490",{goal:5,subL:"Secteur",lib:["20 appels","Relancer les devis"]}),
     p_adm:mkCat("Devis & administratif","🧾","#a16207",{main:false,lib:["Faire un devis","Mettre à jour le CRM"]})}},
-  health:{n:"Santé",e:"🩺",d:"gardes, soins, formation",types:{
+  health:{n:"Santé",e:"🩺",d:"gardes, soins, formation",mis:"Astreinte / déplacement",types:{
     p_gar:mkCat("Garde / service","🩺","#dc2626",{subL:"Service",subs:["Jour","Nuit","Astreinte"],lib:["Transmissions","Dossiers patients"]}),
     p_for:mkCat("Formation continue","📖","#0891b2",{main:false,detail:"learn",skills:["Lecture","Cours en ligne","Pratique"],lib:["Lire un article","Module en ligne"]})}},
-  freelance:{n:"Indépendant",e:"💼",d:"projets clients, prospection, factures",types:{
+  freelance:{n:"Indépendant",e:"💼",d:"projets clients, prospection, factures",mis:"Rendez-vous client",types:{
     p_prj:mkCat("Projets clients","💼","#7c3aed",{goal:25,subL:"Client",subs:["Client A","Client B"],lib:["Avancer le livrable","Point client"]}),
     p_com:mkCat("Prospection","📣","#16a34a",{goal:3,lib:["Contacter 5 prospects","Publier sur les réseaux"]}),
     p_fac:mkCat("Facturation & admin","🧾","#a16207",{main:false,lib:["Envoyer les factures","Relancer les impayés"]})}},
@@ -948,6 +948,8 @@ function applyProfiles(list){const added=[];
   list.forEach(p=>Object.entries((PROFILES[p]||{}).types||{}).forEach(([k,T])=>{if(config.types[k])return;config.types[k]=JSON.parse(JSON.stringify(T));added.push(k);
     if(T.goal>0&&Array.isArray(config.goals))config.goals.push({id:uid(),level:"week",rec:true,kind:"metric",metric:"cat:"+k,target:T.goal,title:T.n,log:{},steps:[],cat:k,parent:"",note:""});}));
   config.settings.profiles=[...new Set([...(config.settings.profiles||[]),...list])];
+  // nom de la catégorie « déplacement » selon le premier profil qui en propose un (seulement si encore le nom par défaut)
+  const mp=list.find(p=>PROFILES[p]&&PROFILES[p].mis);if(mp&&config.types.mission&&config.types.mission.n===DEF_TYPES.mission.n)config.types.mission.n=PROFILES[mp].mis;
   return added;}
 const profileRole=()=>(config.settings.profiles||[]).filter(p=>p!=="other").map(p=>PROFILES[p]?PROFILES[p].n:"").filter(Boolean).join(" · ");
 const DEF_SETTINGS={devGoal:12,sportGoal:2,sportMin:150,water:8,glassMl:250,rest:[5],bilanAt:"20:00",start:"2026-11-08",notifOn:true,notifLead:10,morningAt:"07:00",wRemOn:false,wEvery:90,wFrom:"08:00",wTo:"20:00"};
@@ -1542,7 +1544,10 @@ $("addBtn").onclick=()=>openNew({s:"09:00",e:"10:00",t:"",k:"dev",mode:"once",da
 const openM=id=>$(id).classList.add("open"), closeM=id=>$(id).classList.remove("open");
 document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>closeM(b.dataset.close));
 ["qModal","iModal","nModal","rModal","sModal","xModal","gModal","moreModal"].forEach(id=>$(id).addEventListener("click",e=>{if(e.target.id===id)closeM(id);}));
-$("fab").onclick=()=>openM("qModal");
+$("fab").onclick=()=>{const MT=TY("mission"),ET=TY(effortCat());
+  $("qMis").innerHTML=`<span>${MT.e}</span>${esc(MT.n)}<small>${esc(MT.subs.slice(0,2).join(", ")||"hors planning")}</small>`;
+  const qs=document.querySelector('#qModal [data-q="sport"]');if(qs)qs.innerHTML=`<span>${ET.e}</span>Séance faite<small>${esc(ET.n.toLowerCase())} hors planning</small>`;
+  openM("qModal");};
 document.querySelectorAll("#qModal [data-q]").forEach(b=>b.onclick=()=>{closeM("qModal");const q=b.dataset.q;
   if(q==="imp")quickImp();if(q==="mis")quickMis();if(q==="note")quickNote();if(q==="bilan"){bDate=todayStr();go("bilan");}
   if(q==="add")openNew({s:"09:00",e:"10:00",t:"",k:"dev",mode:"once",date:selDate});
@@ -1589,9 +1594,9 @@ function quickMis(){
   const t=parse(todayStr()),Dd=[];for(let i=0;i<8;i++){const d=addDays(t,i);Dd.push({l:i===0?"Aujourd'hui":i===1?"Demain":SHORT[d.getDay()]+" "+d.getDate(),v:ymd(d)});}
   Dd.push({l:"📅 Autre date / heure",v:null});
   const P=[{l:"Journée (8h–17h)",s:"08:00",e:"17:00"},{l:"Matin (8h–12h)",s:"08:00",e:"12:00"},{l:"Après-midi (13h–17h)",s:"13:00",e:"17:00"}];
-  const L=[{l:"Mission"},...TY("mission").subs.map(l=>({l}))];
+  const MT=TY("mission"),L=[{l:MT.n},...MT.subs.map(l=>({l}))];
   let d=1,p=0,l=0;
-  $("iTitle").textContent="🚗 Mission entreprise";$("iMeta").textContent="Choisis le jour et le moment, puis « Ajouter ».";
+  $("iTitle").textContent=`${MT.e} ${MT.n}`;$("iMeta").textContent="Choisis le jour et le moment, puis « Ajouter ».";
   $("iL1").textContent="Quel jour ?";$("iL2").textContent="Quel moment ?";$("iL3").textContent="Type";
   $("iTaskBox").style.display="none";$("iGear").style.display="";
   const custom=()=>Dd[d].v===null;
@@ -1601,12 +1606,13 @@ function quickMis(){
   ["iDate","iStart","iEnd"].forEach(id=>$(id).onchange=upd);
   $("iDate").value="";$("iStart").value="";$("iEnd").value="";upd();
   $("iGo").onclick=()=>{const x=times();if(x.e<=x.s){toast("L'heure de fin doit être après le début");return;}
-    config.events.push({id:uid(),date:x.d,s:hm(x.s),e:hm(x.e),t:l?L[l].l:"Mission entreprise",k:"mission",sub:l?L[l].l:"",tpl:[]});
+    config.events.push({id:uid(),date:x.d,s:hm(x.s),e:hm(x.e),t:L[l].l,k:"mission",sub:l?L[l].l:"",tpl:[]});
     touch("config");selDate=x.d;closeM("iModal");renderAll();const dd=parse(x.d);toast(`🚗 Mission · ${SHORT[dd.getDay()]} ${dd.getDate()} ${hm(x.s)}–${hm(x.e)}`);};
   openM("iModal");
 }
 function quickNote(){
-  const ideas=[...new Set(["Imprimer cours / exercices","Corriger les devoirs","Réunion","Appeler","Acheter","Répondre aux tickets",...TY("prep").lib,...TY("dev").lib])].slice(0,14);
+  // idées tirées des tâches rapides de tes catégories de travail, puis des idées générales
+  const ideas=[...new Set([...mainCats().flatMap(k=>TY(k).lib.slice(0,4)),"Appeler","Acheter","Rendez-vous","Payer une facture","Réunion"])].slice(0,14);
   const draw=()=>{$("nPills").innerHTML=ideas.map(x=>`<button class="pill add" data-t="${esc(x)}">＋ ${esc(x)}</button>`).join("");
     $("nPills").querySelectorAll("button").forEach(b=>b.onclick=()=>{config.inbox.unshift({id:uid(),t:b.dataset.t,d:false});touch("config");renderAll();toast("📌 Noté : "+b.dataset.t);});};
   draw();$("nIn").value="";openM("nModal");
@@ -2121,26 +2127,29 @@ $("weCopy").onclick=()=>{let tgt=[],rep=true;const src=weDay;
   $("xTitle").textContent=`Copier le ${DAYS[src].toLowerCase()}`;$("xMeta").textContent=`${config.weekly[src].filter(a=>a.k!=="sommeil").length} activités`;draw();openM("xModal");};
 
 /* ================= assistant de configuration ================= */
-let WZ_STEPS=[];   // calculé au lancement : seulement les étapes des catégories que tu as
-const WZ_ALL=[
-  {id:"profil",t:"👤 Profil & rythme",d:"Qui tu es, tes jours de repos et ton rythme de sommeil. Le sommeil est ajouté automatiquement à chaque jour."},
-  {id:"repas",t:"🍽️ Repas",d:"Les repas pris <b>tous les jours à la même heure</b>. Un repas différent selon le jour (ex. « Déjeuner + sieste » le lundi) se met dans l'étape « Autres activités »."},
-  {id:"cours",t:"👨‍🏫 Cours en classe",d:"Une ligne par séance. Touche les jours (D L M M J V S) où elle a lieu, puis l'heure et la classe. Une même séance peut couvrir plusieurs jours."},
-  {id:"prep",t:"📝 Travail enseignant",d:"Préparation, correction, réunions, saisie des notes… Ce qui revient chaque semaine."},
-  {id:"dev",t:"💻 Développement",d:"Tes projets, ton objectif d'heures et tes créneaux de développement."},
-  {id:"sport",t:"🏃 Sport",d:"Tes objectifs et tes séances prévues. Une séance faite hors planning pourra être ajoutée avec ＋ → 🏃 Sport fait."},
-  {id:"eau",t:"💧 Eau",d:"Ton objectif d'hydratation et des rappels réguliers sur le téléphone. Repère courant : 1,5 à 2 L par jour, plus si tu fais du sport ou s'il fait chaud."},
-  {id:"autres",t:"🧩 Autres activités",d:"Anglais, repos, famille, sieste, repas particuliers… Choisis le type de chaque créneau."},
-  {id:"recap",t:"✅ Vérifier & créer",d:"Vérifie ta semaine. Les chevauchements sont signalés en rouge. Tu pourras toujours tout modifier ensuite dans ✏️ Semaine type."}
-];
-const SLOT_STEP={cours:sl=>sl.k==="cours",prep:sl=>sl.k==="prep",dev:sl=>sl.k==="dev",sport:sl=>sl.k==="sport",autres:sl=>!["cours","prep","dev","sport","sommeil"].includes(sl.k)};
-const SLOT_PH={cours:"ex. Cours 1م5 – salle 14",prep:"ex. Préparer les cours de lundi",dev:"ex. Développement",sport:"ex. Course au parc",autres:"ex. Anglais, Sieste, Famille"};
+// Étapes générées à partir des catégories : une par « travail principal », puis une par activité
+// à séances détaillées ou avec objectif (sport, langues, révisions…). Le reste va dans « Autres activités ».
+let WZ_STEPS=[];
+const WZ_FIXED={
+  profil:{id:"profil",t:"👤 Profil & rythme",d:"Qui tu es, tes jours de repos et ton rythme de sommeil. Le sommeil est ajouté automatiquement à chaque jour."},
+  repas:{id:"repas",t:"🍽️ Repas",d:"Les repas pris <b>tous les jours à la même heure</b>. Un repas différent selon le jour (ex. « Déjeuner + sieste » le lundi) se met dans l'étape « Autres activités »."},
+  eau:{id:"eau",t:"💧 Eau",d:"Ton objectif d'hydratation et des rappels réguliers sur le téléphone. Repère courant : 1,5 à 2 L par jour, plus si tu fais du sport ou s'il fait chaud."},
+  autres:{id:"autres",t:"🧩 Autres activités",d:"Repos, famille, sieste, repas particuliers… Choisis le type de chaque créneau."},
+  recap:{id:"recap",t:"✅ Vérifier & créer",d:"Vérifie ta semaine. Les chevauchements sont signalés en rouge. Tu pourras toujours tout modifier ensuite dans ✏️ Semaine type."}};
+function wzCatKeys(){const E=Object.entries(config.types).filter(([k,T])=>T.track&&!["imprevu","mission"].includes(k));
+  return [...E.filter(([k,T])=>T.main),...E.filter(([k,T])=>!T.main&&(T.detail!=="none"||T.goal>0))].map(([k])=>k);}
+function buildWzSteps(){WZ.ck=wzCatKeys();
+  return [WZ_FIXED.profil,WZ_FIXED.repas,...WZ.ck.map(k=>{const T=TY(k),sl=T.subs.length?` et « ${esc(subLabel(k))} »`:"";
+    return{id:"cat:"+k,k,t:`${T.e} ${T.n}`,d:T.unit==="sess"?`Une ligne par séance : touche les jours (D L M M J V S) où elle a lieu, puis l'heure${sl}. Une même séance peut couvrir plusieurs jours.`
+      :`Tes créneaux de « ${esc(T.n)} » qui reviennent chaque semaine${sl}, et ton objectif.`};}),WZ_FIXED.eau,WZ_FIXED.autres,WZ_FIXED.recap];}
+const slotFilter=id=>id.startsWith("cat:")?(k=>sl=>sl.k===k)(id.slice(4)):id==="autres"?(sl=>sl.k!=="sommeil"&&!WZ.ck.includes(sl.k)):null;
+const slotPh=id=>{if(id==="autres")return "ex. Sieste, Famille, Lecture";const T=TY(id.slice(4));return T.unit==="sess"&&T.subs.length?`ex. ${T.n} – ${T.subs[0]}`:`ex. ${T.n}`;};
 let WZ=null;
 function profileFromCurrent(){
   const G=config.settings,P=config.profile||{};
-  const p={name:P.name||"",role:P.role||"Enseignant CEM · Développeur",start:G.start,rest:[...G.rest],wake:"06:00",bed:"22:30",
+  const p={name:P.name||"",role:P.role||profileRole(),start:G.start,rest:[...G.rest],wake:"06:00",bed:"22:30",
     bf:{on:false,s:"06:30",e:"07:00"},lunch:{on:false,s:"12:00",e:"13:00"},dinner:{on:false,s:"19:00",e:"20:00"},
-    slots:[],projects:[...TY("dev").subs],devGoal:TY("dev").goal||0,sportGoal:TY("sport").goal||0,sportMin:TY("sport").goalMin||0,water:G.water,glassMl:G.glassMl,
+    slots:[],cats:Object.fromEntries(Object.entries(config.types).map(([k,T])=>[k,{goal:T.goal||0,goalMin:T.goalMin||0,subs:[...(T.subs||[])]}])),water:G.water,glassMl:G.glassMl,
     wRemOn:!!G.wRemOn,wEvery:G.wEvery,wFrom:G.wFrom,wTo:G.wTo};
   const all=[0,1,2,3,4,5,6].map(d=>config.weekly[d]||[]),used=new Set();
   const common=pred=>{const f=all.map(L=>L.find(pred));if(!f.every(Boolean)||!f.every(x=>x.s===f[0].s&&x.e===f[0].e))return null;f.forEach(x=>used.add(x.id));return f[0];};
@@ -2165,7 +2174,9 @@ function buildFromProfile(p){const out={};
     out[d]=L.map(a=>{let i=old.findIndex(o=>o.k===a.k&&o.s===a.s&&o.e===a.e&&o.t===a.t);if(i<0)i=old.findIndex(o=>o.k===a.k&&o.t===a.t);
       const o=i>=0?old.splice(i,1)[0]:null;return{id:o?o.id:uid(),...a,tpl:o?(o.tpl||[]):[...(TPL[a.k]||[])]};}).sort((a,b)=>m(a.s)-m(b.s));}
   return out;}
-const subsFor=k=>k==="dev"?WZ.p.projects:TY(k).subs;
+const subsFor=k=>(WZ.p.cats[k]||{subs:TY(k).subs}).subs;
+// prévu dans l'unité de la catégorie (séances, heures ou minutes)
+const wzPlan=k=>{const f=sl=>sl.k===k,u=TY(k).unit;return u==="sess"?WZ.p.slots.filter(f).reduce((s,sl)=>s+sl.days.length,0):u==="min"?Math.round(slotHrs(f)*60):r1(slotHrs(f));};
 const slotHrs=f=>WZ.p.slots.filter(f).reduce((s,sl)=>s+Math.max(0,(m(sl.e)-m(sl.s))/60)*sl.days.length,0);
 function slotWarn(sl){
   if(!sl.days.length)return "Choisis au moins un jour.";
@@ -2180,31 +2191,38 @@ function slotHTML(sl,ph,anyType){const T=TY(sl.k),subs=subsFor(sl.k);
   return `<div class="slot" data-sid="${sl.id}" style="border-left-color:${T.c}">
     <div class="dchips">${dayChipsHTML(sl.days,WZ.p.rest)}</div>
     <div class="r1"><input type="time" data-f="s" value="${sl.s}" aria-label="Début"><span>→</span><input type="time" data-f="e" value="${sl.e}" aria-label="Fin">
-      ${anyType?`<select data-f="k" aria-label="Type">${Object.entries(config.types).filter(([k])=>!["sommeil","cours","prep","dev","sport"].includes(k)).map(([k,v])=>`<option value="${k}" ${k===sl.k?'selected':''}>${esc(v.e+" "+v.n)}</option>`).join("")}</select>`:''}
+      ${anyType?`<select data-f="k" aria-label="Type">${Object.entries(config.types).filter(([k])=>k!=="sommeil"&&!WZ.ck.includes(k)).map(([k,v])=>`<option value="${k}" ${k===sl.k?'selected':''}>${esc(v.e+" "+v.n)}</option>`).join("")}</select>`:''}
       <button class="x" data-del="1" aria-label="Supprimer ce créneau">×</button></div>
     <div class="r1" style="margin-top:6px"><input class="lbl" dir="auto" data-f="t" value="${esc(sl.t)}" placeholder="${esc(ph)}" aria-label="Libellé">
-      ${subs.length?`<select data-f="sub" aria-label="Catégorie"><option value="">— ${sl.k==="dev"?"Projet":"Catégorie"} —</option>${subs.map(x=>`<option ${x===sl.sub?'selected':''}>${esc(x)}</option>`).join("")}</select>`:''}</div>
+      ${subs.length?`<select data-f="sub" aria-label="Catégorie"><option value="">— ${esc(subLabel(sl.k))} —</option>${subs.map(x=>`<option ${x===sl.sub?'selected':''}>${esc(x)}</option>`).join("")}</select>`:''}</div>
     <div class="swarn">${esc(slotWarn(sl))}</div></div>`;}
-function slotSection(id){const L=WZ.p.slots.filter(SLOT_STEP[id]);
-  return `<div class="wsum" id="wzSum"></div>${L.map(sl=>slotHTML(sl,SLOT_PH[id],id==="autres")).join("")||`<div class="card empty" style="margin-bottom:8px">Aucun créneau pour l'instant.</div>`}
+function slotSection(id){const L=WZ.p.slots.filter(slotFilter(id));
+  return `<div class="wsum" id="wzSum"></div>${L.map(sl=>slotHTML(sl,slotPh(id),id==="autres")).join("")||`<div class="card empty" style="margin-bottom:8px">Aucun créneau pour l'instant.</div>`}
     <button class="addslot" data-addslot="${id}">＋ Ajouter un créneau</button>`;}
 const row=(label,sub,input)=>`<div class="setrow"><span>${label}${sub?`<small>${sub}</small>`:''}</span>${input}</div>`;
 const inp=(path,type,extra)=>{const v=path.split(".").reduce((o,k)=>o[k],WZ.p);return type==="checkbox"?`<input type="checkbox" data-p="${path}" ${v?'checked':''} style="width:24px;height:24px;accent-color:var(--ok)">`:`<input type="${type}" data-p="${path}" value="${esc(v)}" ${extra||''}>`;};
+// Étape d'une catégorie : sous-catégories, objectif par semaine (dans son unité), minutes si séances détaillées, créneaux
+function catStep(k){const T=TY(k),c=WZ.p.cats[k],u=T.unit;
+  return `<div class="card"><div class="lab" style="margin-top:0">${esc(subLabel(k))}</div>
+    <div class="pills">${c.subs.map((x,i)=>`<button class="pill" data-subdel="${i}" data-ck="${k}">${esc(x)}<span class="x">×</span></button>`).join("")||'<span class="empty">Aucune sous-catégorie</span>'}</div>
+    <div class="inrow"><input class="grow" id="wzSubIn" dir="auto" placeholder="Ajouter (ex. ${esc(T.subs[0]||"Nouveau")})"><button class="btn" data-subadd="${k}">＋</button></div>
+    ${row("Objectif par semaine",`en ${UNIT_L[u]} · 0 = ce qui est prévu`,inp(`cats.${k}.goal`,"number",`min="0" step="${u==="h"?0.5:u==="min"?10:1}"`))}
+    ${T.detail!=="none"&&u!=="min"?row("Objectif en minutes","par semaine · 0 = aucun",inp(`cats.${k}.goalMin`,"number",'min="0" step="10"')):""}</div>
+    <div class="sec-title">Créneaux prévus chaque semaine</div>${slotSection("cat:"+k)}`;}
+function catSum(k){const T=TY(k),c=WZ.p.cats[k],u=T.unit,plan=wzPlan(k),g=+c.goal||0,f=sl=>sl.k===k;
+  let h=`${T.e} Prévu : <b>${fmtCat(plan,u)}</b> par semaine`;
+  h+=g?` / objectif ${fmtCat(g,u)} ${plan>=g?'<span class="good">✓ objectif couvert</span>':`<span class="bad">— il manque ${fmtCat(g-plan,u)}</span>`}`:" · l'objectif sera ce qui est prévu";
+  if(T.detail!=="none"&&u!=="min"&&+c.goalMin){const mn=Math.round(slotHrs(f)*60);h+=`<br>⏱️ ${mn} min / ${c.goalMin} min ${mn>=c.goalMin?'<span class="good">✓</span>':'<span class="bad">— à compléter</span>'}`;}
+  return h;}
 const WZ_RENDER={
   profil:p=>`<div class="card">${row("Ton prénom","affiché en haut de l'écran",inp("name","text",'placeholder="ex. Samy" style="width:150px;text-align:left"'))}
-    ${row("Ton métier","ex. Enseignant CEM · Développeur",inp("role","text",'style="width:150px;text-align:left"'))}
+    ${row("Ton métier","affiché sous ton prénom",inp("role","text",'style="width:150px;text-align:left"'))}
     ${row("Début du programme","l'analyse commence ce jour",inp("start","date",'style="width:150px"'))}
     ${row("Heure de lever","",inp("wake","time"))}${row("Heure de coucher","",inp("bed","time"))}
     <div class="setrow" style="display:block"><span>Jours de repos<small>pas de rattrapage ni de rappel du matin ces jours-là</small></span><div class="dchips" data-restchips style="margin:8px 0 0">${dayChipsHTML(p.rest,p.rest)}</div></div></div>
     <div class="wsum" id="wzSum"></div>`,
   repas:p=>`<div class="card">${[["bf","☕ Petit-déjeuner"],["lunch","🍽️ Déjeuner"],["dinner","🌙 Dîner"]].map(([f,l])=>`
     ${row(l,"tous les jours",inp(f+".on","checkbox"))}<div class="setrow" style="${p[f].on?'':'opacity:.4'}"><span>Horaire</span><span style="display:flex;gap:6px">${inp(f+".s","time",'style="width:96px"')}${inp(f+".e","time",'style="width:96px"')}</span></div>`).join("")}</div>`,
-  cours:()=>slotSection("cours"),prep:()=>slotSection("prep"),
-  dev:p=>`<div class="card"><div class="lab" style="margin-top:0">Mes projets</div><div class="pills">${p.projects.map((x,i)=>`<button class="pill" data-projdel="${i}">${esc(x)}<span class="x">×</span></button>`).join("")||'<span class="empty">Aucun</span>'}</div>
-    <div class="inrow"><input class="grow" id="wzProjIn" placeholder="Nouveau projet (ex. Site client)"><button class="btn" data-act="projAdd">＋</button></div>
-    ${row("Objectif","heures de dev par semaine",inp("devGoal","number",'min="0" step="0.5"'))}</div><div class="sec-title">Créneaux de développement</div>${slotSection("dev")}`,
-  sport:p=>`<div class="card">${row("Séances","par semaine",inp("sportGoal","number",'min="0"'))}${row("Minutes","par semaine (OMS : 150 min)",inp("sportMin","number",'min="0" step="10"'))}</div>
-    <div class="sec-title">Séances prévues</div>${slotSection("sport")}`,
   eau:p=>`<div class="card">${row("Objectif","verres par jour",inp("water","number",'min="1"'))}${row("Taille d'un verre","millilitres",inp("glassMl","number",'min="50" step="50"'))}</div>
     <div class="wsum" id="wzSum"></div>
     <div class="sec-title">🔔 Rappels pour boire</div><div class="card">${row("Activer les rappels","notification avec son et vibration",inp("wRemOn","checkbox"))}
@@ -2214,11 +2232,10 @@ const WZ_RENDER={
   recap:p=>{const W7=buildFromProfile(p);let nCl=0;
     const days=[0,1,2,3,4,5,6].map(d=>{const cl=clashes(W7[d]),L=W7[d].filter(a=>!(a.k==="sommeil"&&a.s==="00:00"));nCl+=Object.keys(cl).length;
       return `<div class="prev-d"><b>${DAYS[d]}${p.rest.includes(d)?" · 😴 repos":""}</b>${L.map(a=>`<div class="${cl[a.id]?'clash':''}">${a.s}–${showT(a.e)} ${TY(a.k).e} ${esc(a.t)}${cl[a.id]?" ⚠️":""}</div>`).join("")}</div>`;}).join("");
-    const bad=p.slots.filter(sl=>!sl.days.length||!(m(sl.e)>m(sl.s))).length,dev=slotHrs(sl=>sl.k==="dev"),spN=p.slots.filter(sl=>sl.k==="sport").reduce((s,sl)=>s+sl.days.length,0);
+    const bad=p.slots.filter(sl=>!sl.days.length||!(m(sl.e)>m(sl.s))).length;
     const chk=[bad?`<span class="bad">❌ ${bad} créneau${bad>1?'x':''} incomplet${bad>1?'s':''} (jour ou heure) : corrige-le${bad>1?'s':''} avant de créer.</span>`:`<span class="good">✓ Tous les créneaux sont complets.</span>`,
       nCl?`<span class="bad">⚠️ ${nCl} activités se chevauchent (en rouge).</span>`:`<span class="good">✓ Aucun chevauchement.</span>`,
-      `💻 Dev prévu : <b>${fmtH(dev)}</b> / objectif ${fmtH(+p.devGoal||0)} ${dev>=(+p.devGoal||0)?'<span class="good">✓</span>':'<span class="bad">— il manque '+fmtH((+p.devGoal||0)-dev)+'</span>'}`,
-      `🏃 Séances prévues : <b>${spN}</b> / objectif ${p.sportGoal} ${spN>=p.sportGoal?'<span class="good">✓</span>':'<span class="bad">— ajoute des séances</span>'}`,
+      ...WZ.ck.filter(k=>+p.cats[k].goal>0).map(k=>{const T=TY(k),pl=wzPlan(k),g=+p.cats[k].goal;return `${T.e} ${esc(T.n)} : <b>${fmtCat(pl,T.unit)}</b> / objectif ${fmtCat(g,T.unit)} ${pl>=g?'<span class="good">✓</span>':`<span class="bad">— il manque ${fmtCat(g-pl,T.unit)}</span>`}`;}),
       `💧 Objectif eau : ${p.water} verres (${(p.water*p.glassMl/1000).toFixed(1).replace(".",",")} L)${p.wRemOn?` · rappels toutes les ${p.wEvery} min`:""}`];
     const ws0=wsKey(todayStr()),wks=[0,1,2,3,4,5,6,7].map(i=>{const d=addDays(parse(ws0),i*7),e=addDays(d,6);return{k:ymd(d),l:(i===0?"Cette semaine":i===1?"Semaine prochaine":"Semaine")+` · ${d.getDate()} ${MONTHS[d.getMonth()]} → ${e.getDate()} ${MONTHS[e.getMonth()]}`,ov:!!config.overrides[ymd(d)]};});
     const nx=wks[1];
@@ -2233,32 +2250,29 @@ const WZ_RENDER={
 };
 const WZ_SUM={
   profil:p=>{const s=m(p.wake),b=m(p.bed),h=(b>s?1440-b+s:s-b)/60;return `😴 Environ <b>${fmtH(h)}</b> de sommeil par nuit${h<7?' · <span class="bad">moins de 7 h : attention à la fatigue</span>':''}.`;},
-  cours:p=>{const n=p.slots.filter(SLOT_STEP.cours).reduce((s,sl)=>s+sl.days.length,0);return n?`📚 <b>${n}</b> séance${n>1?'s':''} par semaine · <b>${fmtH(slotHrs(SLOT_STEP.cours))}</b> de cours.`:"";},
-  prep:()=>{const h=slotHrs(SLOT_STEP.prep);return h?`📝 <b>${fmtH(h)}</b> de travail enseignant par semaine.`:"";},
-  dev:p=>{const h=slotHrs(SLOT_STEP.dev),g=+p.devGoal||0;return `💻 Prévu : <b>${fmtH(h)}</b> / objectif ${fmtH(g)} ${h>=g?'<span class="good">✓ objectif couvert</span>':'<span class="bad">— il manque '+fmtH(g-h)+'</span>'}`;},
-  sport:p=>{const L=p.slots.filter(SLOT_STEP.sport),n=L.reduce((s,sl)=>s+sl.days.length,0),mn=Math.round(slotHrs(SLOT_STEP.sport)*60);
-    return `🏃 <b>${n}</b> séance${n>1?'s':''} / ${p.sportGoal} visées · <b>${mn} min</b> / ${p.sportMin} min ${n>=p.sportGoal&&mn>=p.sportMin?'<span class="good">✓</span>':'<span class="bad">— à compléter</span>'}`;},
   eau:p=>`💧 ${p.water} verres × ${p.glassMl} ml = <b>${(p.water*p.glassMl/1000).toFixed(2).replace(/\.?0+$/,"").replace(".",",")} L</b> par jour ${p.water*p.glassMl<1500?'<span class="bad">— un peu bas (repère : 1,5 à 2 L)</span>':'<span class="good">✓</span>'}`,
-  autres:()=>{const h=slotHrs(SLOT_STEP.autres);return h?`🧩 <b>${fmtH(h)}</b> d'autres activités par semaine.`:"";}
+  autres:()=>{const h=slotHrs(slotFilter("autres"));return h?`🧩 <b>${fmtH(h)}</b> d'autres activités par semaine.`:"";}
 };
+const stepHTML=S=>S.id.startsWith("cat:")?catStep(S.k):WZ_RENDER[S.id](WZ.p);
+const stepSum=S=>S.id.startsWith("cat:")?catSum(S.k):WZ_SUM[S.id]?WZ_SUM[S.id](WZ.p):"";
 function refreshWz(){const S=WZ_STEPS[WZ.i];
   $("wzBody").querySelectorAll("[data-sid]").forEach(r=>{const sl=WZ.p.slots.find(x=>x.id===r.dataset.sid);if(!sl)return;const w=slotWarn(sl);
     r.querySelector(".swarn").textContent=w?(w.startsWith("⚠️")?w.replace("⚠️","🔴"):"⛔ "+w):"";r.classList.toggle("clash",!!w);});
-  const sm=$("wzSum");if(sm&&WZ_SUM[S.id])sm.innerHTML=WZ_SUM[S.id](WZ.p);}
+  const sm=$("wzSum");if(sm)sm.innerHTML=stepSum(S);}
 function drawWz(){const S=WZ_STEPS[WZ.i],newStep=WZ.drawn!==WZ.i;WZ.drawn=WZ.i;WZ.seen.add(WZ.i);
   $("wzSteps").innerHTML=WZ_STEPS.map((s,i)=>`<button class="${i===WZ.i?'on':WZ.seen.has(i)?'ok':''}" data-i="${i}">${i+1}. ${esc(s.t.split(" ").slice(1).join(" "))}</button>`).join("");
   $("wzSteps").querySelectorAll("[data-i]").forEach(b=>b.onclick=()=>{WZ.i=+b.dataset.i;drawWz();});
   $("wzProg").style.width=Math.round((WZ.i+1)/WZ_STEPS.length*100)+"%";
   $("wzTitle").textContent=S.t;$("wzCount").textContent=`Étape ${WZ.i+1} / ${WZ_STEPS.length}`;$("wzDesc").innerHTML=S.d;
-  $("wzBody").innerHTML=WZ_RENDER[S.id](WZ.p);refreshWz();
+  $("wzBody").innerHTML=stepHTML(S);refreshWz();
   $("wzPrev").style.visibility=WZ.i?"visible":"hidden";
   $("wzNext").textContent=WZ.i===WZ_STEPS.length-1?"✅ Créer "+scopeLabel():"Suivant ›";
   if(newStep){window.scrollTo(0,0);const on=$("wzSteps").querySelector(".on");if(on)on.scrollIntoView({block:"nearest",inline:"center"});}
 }
-function startWizard(){WZ_STEPS=WZ_ALL.filter(s=>!["cours","prep","dev"].includes(s.id)||config.types[s.id]);const nx=ymd(addDays(parse(wsKey(todayStr())),7));WZ={i:0,p:profileFromCurrent(),seen:new Set(),drawn:-1,scope:"next",oneWeek:nx};go("wiz");drawWz();}
+function startWizard(){const nx=ymd(addDays(parse(wsKey(todayStr())),7));WZ={i:0,p:profileFromCurrent(),seen:new Set(),drawn:-1,scope:"next",oneWeek:nx,ck:[]};WZ_STEPS=buildWzSteps();go("wiz");drawWz();}
 const scopeLabel=()=>WZ.scope==="now"?"dès cette semaine":WZ.scope==="next"?"dès la semaine prochaine":"pour la semaine du "+parse(WZ.oneWeek).getDate()+" "+MONTHS[parse(WZ.oneWeek).getMonth()];
 $("wzBody").addEventListener("click",e=>{const b=e.target.closest("button");if(!b||!WZ)return;const P=WZ.p,r=b.closest("[data-sid]");
-  if(b.dataset.addslot){const id=b.dataset.addslot,k=id==="autres"?(config.types.anglais?"anglais":"repos"):id,last=P.slots.filter(SLOT_STEP[id]).slice(-1)[0];
+  if(b.dataset.addslot){const id=b.dataset.addslot,k=id.startsWith("cat:")?id.slice(4):(Object.keys(config.types).find(x=>x!=="sommeil"&&!WZ.ck.includes(x)&&x==="repos")||Object.keys(config.types).find(x=>x!=="sommeil"&&!WZ.ck.includes(x))||"repos"),last=P.slots.filter(slotFilter(id)).slice(-1)[0];
     P.slots.push({id:uid(),days:[],s:last?last.e:"08:00",e:last?hm(Math.min(m(last.e)+60,1439)):"09:00",t:"",k,sub:""});drawWz();
     const rows=$("wzBody").querySelectorAll("[data-sid]");if(rows.length)rows[rows.length-1].scrollIntoView({block:"center"});return;}
   if(r){const sl=P.slots.find(x=>x.id===r.dataset.sid);if(!sl)return;
@@ -2267,10 +2281,10 @@ $("wzBody").addEventListener("click",e=>{const b=e.target.closest("button");if(!
   if(b.closest("[data-restchips]")&&b.dataset.d!==undefined){const d=+b.dataset.d;P.rest=P.rest.includes(d)?P.rest.filter(x=>x!==d):[...P.rest,d].sort();drawWz();return;}
   if(b.dataset.scope){WZ.scope=b.dataset.scope;drawWz();return;}
   if(b.dataset.wk){WZ.oneWeek=b.dataset.wk;drawWz();return;}
-  if(b.dataset.projdel!==undefined){const x=P.projects.splice(+b.dataset.projdel,1)[0];P.slots.forEach(sl=>{if(sl.k==="dev"&&sl.sub===x)sl.sub="";});drawWz();return;}
-  if(b.dataset.act==="projAdd"){const v=$("wzProjIn").value.trim();if(v&&!P.projects.includes(v))P.projects.push(v);drawWz();setTimeout(()=>$("wzProjIn")&&$("wzProjIn").focus(),30);}
+  if(b.dataset.subdel!==undefined){const k=b.dataset.ck,x=P.cats[k].subs.splice(+b.dataset.subdel,1)[0];P.slots.forEach(sl=>{if(sl.k===k&&sl.sub===x)sl.sub="";});drawWz();return;}
+  if(b.dataset.subadd){const k=b.dataset.subadd,v=$("wzSubIn").value.trim();if(v&&!P.cats[k].subs.includes(v))P.cats[k].subs.push(v);drawWz();setTimeout(()=>$("wzSubIn")&&$("wzSubIn").focus(),30);}
 });
-$("wzBody").addEventListener("keydown",e=>{if(e.target.id==="wzProjIn"&&e.key==="Enter"){e.preventDefault();$("wzBody").querySelector('[data-act="projAdd"]').click();}});
+$("wzBody").addEventListener("keydown",e=>{if(e.target.id==="wzSubIn"&&e.key==="Enter"){e.preventDefault();$("wzBody").querySelector("[data-subadd]").click();}});
 $("wzBody").addEventListener("change",e=>{const el=e.target;if(!WZ)return;const r=el.closest("[data-sid]");
   if(r&&el.dataset.f){const sl=WZ.p.slots.find(x=>x.id===r.dataset.sid);if(!sl)return;sl[el.dataset.f]=el.value;
     if(el.dataset.f==="k"){sl.sub="";drawWz();}else refreshWz();return;}
@@ -2278,7 +2292,7 @@ $("wzBody").addEventListener("change",e=>{const el=e.target;if(!WZ)return;const 
     obj[last]=el.type==="checkbox"?el.checked:el.type==="number"?(+el.value||0):el.value;
     if(el.type==="checkbox")drawWz();else refreshWz();}
 });
-function wzStepErrors(i){const id=WZ_STEPS[i].id,f=SLOT_STEP[id];
+function wzStepErrors(i){const id=WZ_STEPS[i].id,f=slotFilter(id);
   if(f)return WZ.p.slots.filter(f).filter(sl=>!sl.days.length||!(m(sl.e)>m(sl.s))).length;
   if(id==="profil"&&(!WZ.p.wake||!WZ.p.bed))return 1;return 0;}
 $("wzPrev").onclick=()=>{if(WZ.i>0){WZ.i--;drawWz();}};
@@ -2294,10 +2308,10 @@ $("wzNext").onclick=async()=>{
   else{snapWeekly();config.weekly=W7;}
   p.slots.forEach(sl=>{const T=config.types[sl.k];if(T&&sl.sub&&!T.subs.includes(sl.sub))T.subs.push(sl.sub);});
   if(scope==="one"){const wk=WZ.oneWeek;touch("config");WZ=null;selDate=wk<ws0?ws0:(wk===ws0?todayStr():wk);go("plan");toast(`⭐ Planning spécial créé ${lbl}`);return;}
-  if(config.types.dev)config.types.dev.goal=+p.devGoal||0;
-  if(config.types.sport){config.types.sport.goal=+p.sportGoal||0;config.types.sport.goalMin=+p.sportMin||0;}
+  // objectifs et sous-catégories de chaque catégorie, tels que réglés dans l'assistant
+  Object.entries(p.cats).forEach(([k,c])=>{const T=config.types[k];if(!T)return;T.goal=+c.goal||0;T.goalMin=+c.goalMin||0;
+    T.subs=[...new Set([...c.subs,...p.slots.filter(sl=>sl.k===k&&sl.sub).map(sl=>sl.sub)])];});
   Object.assign(config.settings,{start:p.start||config.settings.start,rest:[...p.rest],water:Math.max(1,+p.water||8),glassMl:Math.max(50,+p.glassMl||250),wRemOn:!!p.wRemOn,wEvery:+p.wEvery||90,wFrom:p.wFrom,wTo:p.wTo});
-  if(config.types.dev)config.types.dev.subs=[...new Set([...p.projects,...p.slots.filter(sl=>sl.k==="dev"&&sl.sub).map(sl=>sl.sub)])];
   config.profile={name:(p.name||"").trim(),role:(p.role||"").trim()};
   touch("config");WZ=null;selDate=scope==="next"?nx:todayStr();go("plan");toast(`✅ Planning appliqué ${lbl}`);
 };

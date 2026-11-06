@@ -50,6 +50,12 @@ Chaque profil ajoute ses catégories (avec unité, objectif, sous-catégories, t
 plus tard (Paramètres → 👤 Mes profils) sans toucher aux catégories existantes. Une installation existante est reconnue
 automatiquement (profils déduits de ses catégories) et ne voit pas l'écran de bienvenue.
 
+## Assistant adaptatif
+Les étapes de l'assistant sont générées à partir des catégories : une étape par catégorie de « travail principal »,
+puis une par activité à séances détaillées ou avec objectif (sport, langues, révisions…). Chaque étape permet de gérer
+les sous-catégories, l'objectif par semaine (dans l'unité de la catégorie) et les créneaux, avec le prévu comparé à
+l'objectif. Le bouton « Déplacement » du menu ＋ et les idées de notes reprennent les catégories et le profil.
+
 ## Catégories intelligentes (pour tous les métiers)
 Chaque catégorie (Paramètres → ouvrir une catégorie) se règle : à noter dans le bilan, mesurer en heures / minutes /
 séances, objectif par semaine (0 = ce qui est prévu), détails de séance (effort ou apprentissage) et objectif en minutes,
