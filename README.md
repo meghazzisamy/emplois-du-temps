@@ -42,6 +42,14 @@ publiée dans **Releases**. Installe le nouvel APK par-dessus l'ancien : tes don
 - Conflits d'horaire vérifiés en direct avant d'enregistrer : frise de la journée + 🟢 libre / 🟠 sur un repos / 🔴 conflit,
   avec proposition du créneau libre le plus proche.
 
+## Profils métier
+Au premier lancement : prénom → « Que fais-tu dans la vie ? » (plusieurs choix possibles) → jours de repos →
+récapitulatif, puis l'assistant de planning. Profils : 👨‍🏫 Enseignant · 💻 Développeur / informatique · 🎓 Étudiant ·
+🏢 Employé de bureau · 🤝 Commercial / terrain · 🩺 Santé · 💼 Indépendant · 🏠 Vie de famille · ✏️ Autre.
+Chaque profil ajoute ses catégories (avec unité, objectif, sous-catégories, tâches rapides). Un profil peut être ajouté
+plus tard (Paramètres → 👤 Mes profils) sans toucher aux catégories existantes. Une installation existante est reconnue
+automatiquement (profils déduits de ses catégories) et ne voit pas l'écran de bienvenue.
+
 ## Catégories intelligentes (pour tous les métiers)
 Chaque catégorie (Paramètres → ouvrir une catégorie) se règle : à noter dans le bilan, mesurer en heures / minutes /
 séances, objectif par semaine (0 = ce qui est prévu), détails de séance (effort ou apprentissage) et objectif en minutes,
