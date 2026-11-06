@@ -211,6 +211,7 @@ header.top p{margin:2px 0 0;color:var(--muted);font-size:12.5px}
 .stb.done{border:2px solid var(--ok);background:#d1fae5}
 .stb.partial{border:2px solid var(--part);background:#fef3c7}
 .stb.missed{border:2px solid var(--ko);background:#fee2e2}
+.stb.auto{border:2px dashed var(--ko);background:#fff;font-size:14px}
 .now .row2{display:flex;gap:8px;margin-top:12px}
 .now .row2 .btn{flex:1;background:#fff;color:var(--accent);font-weight:700}
 .now .row2 .btn.ghost{flex:0 0 auto;background:rgba(255,255,255,.14);color:#fff}
@@ -542,7 +543,7 @@ nav.tabs button.on{color:var(--accent)}
     </div>
     <div class="sec-title">Note de la journée</div>
     <div class="card"><label class="field"><textarea id="dayNote" placeholder="Ce qui a bien marché, ce qui a bloqué…"></textarea></label></div>
-    <p class="tip">✅ fait · 🌓 à moitié · ❌ pas fait. Le score compte la durée de chaque activité (le repos est noté mais ne compte pas dans le score).</p>
+    <p class="tip">✅ fait · 🌓 à moitié (selon la part des sous-tâches cochées) · ❌ pas fait. Une activité jamais notée compte comme non faite 2 jours après. Repos, repas et sommeil n'ont rien à noter (réglable dans Paramètres → catégorie).</p>
   </section>
 
   <!-- ============ ANALYSE ============ -->
@@ -653,7 +654,7 @@ nav.tabs button.on{color:var(--accent)}
   <!-- ============ SEMAINE TYPE ============ -->
   <section class="view" id="v-week">
     <div class="vhead"><button class="back" data-back="set">‹ Paramètres</button><b>✏️ Ma semaine type</b></div>
-    <p class="wz-desc">Ce planning se répète chaque semaine. Touche une activité pour la modifier ou la supprimer. Les semaines passées gardent leur planning : ton historique ne change pas.</p>
+    <p class="wz-desc">Ce planning se répète chaque semaine. Touche une activité pour la modifier ou la supprimer. Une modification s'applique à partir d'aujourd'hui : les jours passés gardent leur planning et ton bilan.</p>
     <div class="days" id="weDays"></div>
     <div class="dayhead"><b id="weTitle"></b><span id="weSub"></span></div>
     <div class="list" id="weList"></div>
@@ -716,7 +717,8 @@ nav.tabs button.on{color:var(--accent)}
     <div class="meta" id="dMeta"></div>
     <div id="dOff" class="hint" style="display:none;color:var(--ko);margin:0 0 10px">Annulé par un imprévu / une mission — à rattraper.</div>
     <button class="go" id="dFocus" style="margin:0 0 12px">🎯 Démarrer le mode concentration</button>
-    <div class="lab">Statut</div>
+    <div class="lab" id="dStLab">Statut</div>
+    <div class="hint" id="dStHint" style="display:none"></div>
     <div class="seg status" id="dStatus">
       <button data-v="done">✅ Fait</button><button data-v="partial">🌓 À moitié</button><button data-v="missed">❌ Pas fait</button>
     </div>
@@ -875,7 +877,7 @@ const DEF_TYPES={
   anglais:{n:"Langues",e:"🗣️",c:"#db2777",track:true,subs:["Anglais","Français","Arabe","Espagnol","Allemand"],skills:["Vocabulaire","Écoute / compréhension","Lecture","Écriture","Expression orale","Grammaire","Prononciation"],lib:["Vocabulaire 10 min","Écoute / podcast 10 min","Écrire 5 phrases","Leçon d'application","Réviser les mots de la veille"]},
   mission:{n:"Mission entreprise",e:"🚗",c:"#0e7490",track:true,subs:["Chez le client","Déplacement","Formation entreprise"],lib:["Préparer le matériel","Compte rendu"]},
   imprevu:{n:"Imprévu",e:"⚡",c:"#dc2626",track:true,subs:["Réunion","Rendez-vous","Personnel","Travail","Famille","Administratif","Santé"],lib:["Prévenir l'administration","Prévenir l'équipe dev","Préparer les documents","Compte rendu"]},
-  repos:{n:"Repos & vie perso",e:"😴",c:"#0d9488",track:true,subs:["Famille","Sortie entre amis","Sieste","Promenade","Lecture"],lib:["Boire un verre d'eau 💧","Sans écran"]},
+  repos:{n:"Repos & vie perso",e:"😴",c:"#0d9488",track:false,subs:["Famille","Sortie entre amis","Sieste","Promenade","Lecture"],lib:["Boire un verre d'eau 💧","Sans écran"]},
   repas:{n:"Repas",e:"🍽️",c:"#64748b",track:false,subs:[],lib:[]},
   sommeil:{n:"Sommeil",e:"🌙",c:"#334155",track:false,subs:[],lib:[]}
 };
@@ -902,6 +904,8 @@ function ensureConfig(){
     if(T.n==="Anglais"){T.n="Langues";T.e="🗣️";T.subs=[...DEF_TYPES.anglais.subs];T.lib=[...DEF_TYPES.anglais.lib];}
     const fix=a=>{if(a.k==="anglais"&&(!a.sub||DEF_TYPES.anglais.skills.concat(["Vocabulaire","Écoute / podcast","Lecture","Conversation","Grammaire"]).includes(a.sub)))a.sub="Anglais";};
     for(let d=0;d<7;d++)(config.weekly[d]||[]).forEach(fix);(config.events||[]).forEach(fix);config.settings.m8=1;}
+  // v10 : le repos n'est plus à noter dans le bilan (réactivable dans Paramètres → catégorie)
+  if(!config.settings.m10){if(config.types.repos)config.types.repos.track=false;config.settings.m10=1;}
   if(config.types.anglais&&!config.types.anglais.skills)config.types.anglais.skills=[...DEF_TYPES.anglais.skills];
   for(let d=0;d<7;d++)(config.weekly[d]||[]).forEach(a=>{if(a.sub===undefined)a.sub=guessSub(a);});
   config.events.forEach(e=>{if(e.sub===undefined)e.sub="";});
@@ -1009,8 +1013,10 @@ const overrideOf=dateStr=>(config.overrides||{})[wsKey(dateStr)]||null;
 function weeklyFor(dateStr){const ov=overrideOf(dateStr);if(ov)return ov;for(const p of (config.past||[]))if(dateStr<p.until)return p.weekly;return config.weekly;}
 // Date à partir de laquelle la semaine type (config.weekly) s'applique
 const tplFrom=()=>{const P=config.past||[];return P.length?P[P.length-1].until:null;};
+// Coupure au jour près : les jours avant aujourd'hui gardent l'ancien planning (et leur bilan) ;
+// la modification s'applique à partir d'aujourd'hui.
 function snapWeekly(){
-  const cut=wsKey(todayStr());config.past=config.past||[];
+  const cut=todayStr();config.past=config.past||[];
   if(cut<=config.settings.start)return;            // rien d'historique à protéger
   const last=config.past[config.past.length-1];if(last&&last.until>=cut)return;
   config.past.push({until:cut,weekly:JSON.parse(JSON.stringify(config.weekly))});
@@ -1034,13 +1040,22 @@ function findAt(dateStr,min){
   const nx=l.filter(a=>m(a.s)>min&&a.k!=="sommeil")[0];
   return{cur,nx};
 }
-// Le repos se note (pour le suivi) mais ne compte pas dans le % de réalisation.
+// « À noter dans le bilan » = TY(k).track (réglable par catégorie). Le repos ne compte jamais dans le % de réalisation.
 const inScore=k=>TY(k).track&&k!=="repos";
+const isFuture=d=>d>todayStr();
+const OVERDUE_DAYS=2;
+const isOverdue=d=>d<=ymd(addDays(parse(todayStr()),-OVERDUE_DAYS));
+// Statut retenu pour les calculs : celui noté, sinon « non fait » 2 jours après la date
+function effSt(date,o){return o&&o.st?o.st:(isOverdue(date)?"missed":null);}
+// Poids : ✅ 1 · 🌓 part des sous-tâches cochées (50 % s'il n'y en a pas) · ❌ 0
+function stW(o,st){st=st||(o&&o.st);if(st==="done")return 1;
+  if(st==="partial"){const t=(o&&o.tasks)||[],n=t.length,d=t.filter(x=>x.d).length;return n&&d?Math.min(.95,Math.max(.05,d/n)):.5;}return 0;}
 function dayScore(date){
   const its=itemsFor(date).filter(a=>!a.off&&TY(a.k).track);
-  let plan=0,got=0,rated=0,n=0;
-  its.forEach(a=>{const h=dur(a);n++;const o=occ(date,a.id);if(o&&o.st){rated++;if(inScore(a.k)){plan+=h;got+=h*ST[o.st].w;}}});
-  return{n,rated,pct:plan?Math.round(got/plan*100):null,its};
+  let plan=0,got=0,rated=0,n=0,auto=0;
+  its.forEach(a=>{const h=dur(a);n++;const o=occ(date,a.id),st=effSt(date,o);if(o&&o.st)rated++;else if(st)auto++;
+    if(st&&inScore(a.k)){plan+=h;got+=h*stW(o,st);}});
+  return{n,rated,auto,pct:plan?Math.round(got/plan*100):null,its};
 }
 
 /* ================= navigation ================= */
@@ -1078,7 +1093,7 @@ function renderNow(){
     $("nowBar").style.width=Math.min(100,Math.max(0,Math.round((min-s)/(e-s)*100)))+"%";
     const tk=tasksOf(date,cur);
     $("nowTasks").innerHTML=tk.slice(0,5).map((t,i)=>`<label class="${t.d?"d":""}"><input type="checkbox" data-nt="${i}" ${t.d?"checked":""}><span>${esc(t.t)}</span></label>`).join("")+(tk.length>5?`<div style="font-size:12.5px;opacity:.8">+ ${tk.length-5} autre(s)</div>`:"");
-    $("nowTasks").querySelectorAll("[data-nt]").forEach(c=>c.onchange=()=>{const o=occ(date,cur.id,true);if(!o.tasks)o.tasks=tasksOf(date,cur).map(x=>({...x}));o.tasks[+c.dataset.nt].d=c.checked;autoStatus(o);touch("weeks/"+wsKey(date));renderAll();});
+    $("nowTasks").querySelectorAll("[data-nt]").forEach(c=>c.onchange=()=>{const o=occ(date,cur.id,true);if(!o.tasks)o.tasks=tasksOf(date,cur).map(x=>({...x}));o.tasks[+c.dataset.nt].d=c.checked;autoStatus(o,date);touch("weeks/"+wsKey(date));renderAll();});
     const o=occ(date,cur.id)||{},trk=TY(cur.k).track;
     $("nowDone").style.display=trk?"":"none";$("nowDone").textContent=o.st==="done"?"✅ Fait ✓":"✅ Fait";
     $("nowFocus").style.display=["repas"].includes(cur.k)?"none":"";$("openCur").style.display="";}
@@ -1124,7 +1139,7 @@ function renderList(){
     return `<div class="item ${isCur?'cur':''} ${a.ev?'ev':''} ${a.off?'off':''}" style="${a.ev?'border-color:'+T.c:''}" data-id="${a.id}">
       <div class="bar" style="background:${T.c}"></div><div class="hrs">${a.s}<br>${showT(a.e)}</div>
       <div class="txt"><div class="t">${T.e} ${esc(a.t)}</div><div class="c">${info}</div></div>
-      ${TY(a.k).track&&!a.off?`<button class="stb ${o&&o.st||''}" data-st="${a.id}" aria-label="Noter">${o&&o.st?ST[o.st].e:''}</button>`:''}</div>`;}).join("");
+      ${TY(a.k).track&&!a.off&&!isFuture(selDate)?`<button class="stb ${o&&o.st||(isOverdue(selDate)?'auto':'')}" data-st="${a.id}" aria-label="Noter" title="${o&&o.st?ST[o.st].n:isOverdue(selDate)?'Jamais notée : comptée comme non faite':'À noter'}">${o&&o.st?ST[o.st].e:isOverdue(selDate)?'❔':''}</button>`:''}</div>`;}).join("");
   $("list").querySelectorAll(".item").forEach(el=>el.onclick=()=>openDetail(selDate,el.dataset.id));
   $("list").querySelectorAll(".stb").forEach(b=>b.onclick=e=>{e.stopPropagation();const o=occ(selDate,b.dataset.st,true);const cyc=[undefined,"done","partial","missed"];setStatus(selDate,b.dataset.st,cyc[(cyc.indexOf(o.st)+1)%4]);renderAll();});
 }
@@ -1279,6 +1294,10 @@ function openDetail(date,id){
 function drawDetail(){
   const a=findItem(det.date,det.id),o=occ(det.date,det.id)||{};
   $("dStatus").querySelectorAll("button").forEach(b=>b.classList.toggle("on",o.st===b.dataset.v));
+  {const trk=TY(a.k).track&&!a.off,fut=isFuture(det.date),hint=$("dStHint");
+    $("dStLab").style.display=$("dStatus").style.display=trk&&!fut?"":"none";
+    hint.style.display=trk&&(fut||(!o.st&&isOverdue(det.date)))||!TY(a.k).track?"":"none";
+    hint.textContent=!TY(a.k).track?`${TY(a.k).e} ${TY(a.k).n} : rien à noter (réglable dans Paramètres → catégorie).`:fut?"⏳ Activité à venir : prépare les sous-tâches, tu pourras la noter le jour même.":"❔ Jamais notée : elle compte comme non faite dans l'analyse. Note-la si tu l'as faite.";}
   const T=TY(a.k),cs=subOf(det.date,a);
   $("dSubLab").style.display=$("dSubs").style.display=T.subs.length?"":"none";
   $("dSubs").innerHTML=T.subs.map(x=>`<button class="pill ${x===cs?'on':''}" style="${x===cs?'background:'+T.c+';border-color:'+T.c:''}" data-s="${esc(x)}">${esc(x)}</button>`).join("");
@@ -1290,8 +1309,8 @@ function drawDetail(){
   const tk=tasksOf(det.date,a);
   $("dTasks").innerHTML=tk.length?tk.map((t,i)=>`<div class="task ${t.d?'d':''}"><input type="checkbox" data-i="${i}" ${t.d?'checked':''} aria-label="Tâche faite"><span>${esc(t.t)}${t.n?`<small class="tn">💬 ${esc(t.n)}</small>`:''}</span>${t.d?'':`<button class="mv" data-mv="${i}" aria-label="Reporter">↪ Reporter</button>`}<button class="nb ${t.n?'on':''}" data-nt="${i}" aria-label="Remarque">💬</button><button data-x="${i}" aria-label="Supprimer">×</button></div>
     ${tNote===i?`<div class="addt tnote"><input id="tNoteIn" value="${esc(t.n||'')}" placeholder="Remarque sur « ${esc(t.t)} »…"><button class="btn" id="tNoteOk">OK</button></div>`:''}`).join(""):`<div class="empty" style="padding:4px 2px 8px">Aucune tâche. Ajoute ce que tu veux faire dans ce créneau.</div>`;
-  $("dTasks").querySelectorAll("input[type=checkbox]").forEach(c=>c.onchange=()=>{const o=materialize();o.tasks[+c.dataset.i].d=c.checked;autoStatus(o);commit();drawDetail();});
-  $("dTasks").querySelectorAll("button[data-x]").forEach(b=>b.onclick=()=>{const o=materialize();o.tasks.splice(+b.dataset.x,1);autoStatus(o);commit();drawDetail();});
+  $("dTasks").querySelectorAll("input[type=checkbox]").forEach(c=>c.onchange=()=>{const o=materialize();o.tasks[+c.dataset.i].d=c.checked;autoStatus(o,det.date);commit();drawDetail();});
+  $("dTasks").querySelectorAll("button[data-x]").forEach(b=>b.onclick=()=>{const o=materialize();o.tasks.splice(+b.dataset.x,1);autoStatus(o,det.date);commit();drawDetail();});
   $("dTasks").querySelectorAll("button[data-nt]").forEach(b=>b.onclick=()=>{const i=+b.dataset.nt;tNote=tNote===i?null:i;drawDetail();if(tNote!=null)setTimeout(()=>$("tNoteIn")&&$("tNoteIn").focus(),30);});
   if(tNote!=null&&$("tNoteIn")){const save=()=>{const o=materialize();if(o.tasks[tNote]){const v=$("tNoteIn").value.trim();if(v)o.tasks[tNote].n=v;else delete o.tasks[tNote].n;}tNote=null;commit();drawDetail();};
     $("tNoteOk").onclick=save;$("tNoteIn").onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();save();}};}
@@ -1306,7 +1325,7 @@ function drawDetail(){
     $("dSpMin").innerHTML=MIN.map(v=>`<button class="pill ${sp.min===v?'sel':''}" data-v="${v}">${v} min</button>`).join("");
     $("dSpInt").innerHTML=OPT.map(v=>`<button class="pill ${cur.includes(v)?'sel':''}" data-v="${esc(v)}">${esc(v)}</button>`).join("");
     const field=isL?"lang":"sport";
-    const set=(f,v)=>{const o=occ(det.date,det.id,true);o[field]=Object.assign({},o[field],{[f]:v});if(!o.st)o.st="done";commit();drawDetail();};
+    const set=(f,v)=>{const o=occ(det.date,det.id,true);o[field]=Object.assign({},o[field],{[f]:v});if(!o.st&&!isFuture(det.date))o.st="done";commit();drawDetail();};
     $("dSpMin").querySelectorAll("button").forEach(b=>b.onclick=()=>set("min",+b.dataset.v));
     $("dSpInt").querySelectorAll("button").forEach(b=>b.onclick=()=>{const v=b.dataset.v;
       if(isL){const s=new Set(sp.skills||[]);s.has(v)?s.delete(v):s.add(v);set("skills",[...s]);}else set("int",v);});}
@@ -1316,15 +1335,17 @@ $("dDel").onclick=()=>{const{date,id}=det,a=findItem(date,id);if(!a)return;const
   const inTpl=!a.ev&&!overrideOf(date)&&config.weekly[dow].some(x=>x.id===id);
   const opts=a.ev?[{l:"🗑️ Supprimer cette activité",sub:"Elle n'était prévue qu'une seule fois.",danger:1,fn:()=>{const i=config.events.findIndex(e=>e.id===id);if(i>=0)config.events.splice(i,1);touch("config");toast("Supprimé");}}]
     :[{l:`📅 Seulement le ${nice(parse(date))}`,sub:"Les autres semaines ne changent pas. Rien ne part dans « Rattraper ».",fn:()=>{const o=occ(date,id,true);o.skip=1;delete o.st;touch("weeks/"+wsKey(date));toast("Supprimé pour ce jour · ↺ rétablissable");}},
-      ...(inTpl?[{l:`🔁 Tous les ${DAYS[dow].toLowerCase()}s`,sub:"Retiré de ta semaine type à partir de cette semaine. Les semaines passées gardent leur historique.",danger:1,fn:()=>{snapWeekly();const arr=config.weekly[dow];arr.splice(arr.findIndex(x=>x.id===id),1);touch("config");toast("Retiré de la semaine type");}}]:[])];
+      ...(inTpl?[{l:`🔁 Tous les ${DAYS[dow].toLowerCase()}s`,sub:"Retiré de ta semaine type à partir d'aujourd'hui. Les jours passés gardent leur historique.",danger:1,fn:()=>{snapWeekly();const arr=config.weekly[dow];arr.splice(arr.findIndex(x=>x.id===id),1);touch("config");toast("Retiré de la semaine type");}}]:[])];
   $("dModal").classList.remove("open");det=null;
   choose(`Supprimer « ${a.t} » ?`,`${a.s}–${showT(a.e)} · ${TY(a.k).n}`,opts);};
 function materialize(){const a=findItem(det.date,det.id),o=occ(det.date,det.id,true);if(!o.tasks)o.tasks=tasksOf(det.date,a).map(t=>({...t}));return o;}
 // Statut ⇄ sous-tâches : toutes cochées = ✅ fait · une partie = 🌓 à moitié · aucune = non noté (sauf ❌ choisi)
-function autoStatus(o){const n=o.tasks.length,d=o.tasks.filter(t=>t.d).length;if(!n)return;
+// (activité à venir : on peut préparer/cocher les sous-tâches, mais le statut ne change pas)
+function autoStatus(o,date){if(date&&isFuture(date))return;const n=o.tasks.length,d=o.tasks.filter(t=>t.d).length;if(!n)return;
   if(d===n)o.st="done";else if(d>0){if(o.st!=="missed")o.st="partial";}else if(o.st==="done"||o.st==="partial")delete o.st;}
-// Choisir ✅ Fait coche toutes les sous-tâches
-function setStatus(date,id,st){const a=findItem(date,id),o=occ(date,id,true);o.st=st;if(!st)delete o.st;
+// Choisir ✅ Fait coche toutes les sous-tâches. Interdit sur une activité à venir.
+function setStatus(date,id,st){if(st&&isFuture(date)){toast("⏳ Activité à venir : tu pourras la noter le jour même");return false;}
+  const a=findItem(date,id),o=occ(date,id,true);o.st=st;if(!st)delete o.st;
   if(st==="done"&&a){if(!o.tasks)o.tasks=tasksOf(date,a).map(t=>({...t}));o.tasks.forEach(t=>t.d=true);}
   touch("weeks/"+wsKey(date));}
 function commit(){touch("weeks/"+wsKey(det.date));renderAll();}
@@ -1501,11 +1522,11 @@ function renderBilan(){
   $("bTitle").textContent=nice(d);$("bSub").textContent=bDate===todayStr()?"Aujourd'hui":"";
   $("ring").innerHTML=ring(sc.pct);
   $("bBig").textContent=sc.n?(sc.rated===sc.n?"Journée notée ✓":`${sc.n-sc.rated} activité${sc.n-sc.rated>1?'s':''} à noter`):"Rien de prévu ce jour";
-  const devH=sc.its.filter(a=>a.k==="dev").reduce((s,a)=>{const o=occ(bDate,a.id);return s+(o&&o.st?dur(a)*ST[o.st].w:0);},0);
+  const devH=sc.its.filter(a=>a.k==="dev").reduce((s,a)=>{const o=occ(bDate,a.id);return s+(o&&o.st?dur(a)*stW(o):0);},0);
   $("bSmall").innerHTML=`${sc.rated}/${sc.n} notées · 💻 ${fmtH(devH)} de dev faites<br>💧 ${w.water[bDate]||0}/${config.settings.water} verres`;
   $("rateList").innerHTML=sc.its.length?sc.its.map(a=>{const o=occ(bDate,a.id)||{},T=TY(a.k),tk=tasksOf(bDate,a),td=tk.filter(t=>t.d).length;
     return `<div class="rate"><div class="info" data-id="${a.id}" style="cursor:pointer"><b>${T.e} ${esc(a.t)}</b><span>${a.s}–${showT(a.e)}${subOf(bDate,a)?' · '+esc(subOf(bDate,a)):''}${tk.length?` · ☑ ${td}/${tk.length}`:''} · détails ›</span></div>
-    <div class="chips">${Object.entries(ST).map(([k,v])=>`<button class="chip ${k} ${o.st===k?'on':''}" data-id="${a.id}" data-s="${k}" aria-label="${v.n}">${v.e}</button>`).join("")}</div></div>`;}).join(""):`<div class="empty">Aucune activité à noter.</div>`;
+    ${isFuture(bDate)?`<span class="empty">⏳ à venir</span>`:`<div class="chips">${Object.entries(ST).map(([k,v])=>`<button class="chip ${k} ${o.st===k?'on':''}" data-id="${a.id}" data-s="${k}" aria-label="${v.n}">${v.e}</button>`).join("")}</div>`}</div>`;}).join(""):`<div class="empty">Aucune activité à noter.</div>`;
   $("rateList").querySelectorAll(".chip").forEach(b=>b.onclick=()=>{const o=occ(bDate,b.dataset.id,true);setStatus(bDate,b.dataset.id,o.st===b.dataset.s?undefined:b.dataset.s);renderAll();});
   $("rateList").querySelectorAll(".info").forEach(el=>el.onclick=()=>openDetail(bDate,el.dataset.id));
   const n=w.water[bDate]||0,G8=config.settings.water;$("glasses").textContent="💧".repeat(Math.min(n,G8))+"○".repeat(Math.max(0,G8-n))+(n>G8?` +${n-G8}`:"");
@@ -1519,7 +1540,7 @@ let dnT;$("dayNote").oninput=()=>{const w=W(wsKey(bDate));w.notes[bDate]=$("dayN
 
 /* ================= render: analyse ================= */
 function weekStats(wk){
-  const ws=parse(wk),today=todayStr(),days=[],types={},subs={};let spN=0,spMin=0,spX=0,plan=0,got=0,rated=0,n=0,tk=0,tkd=0,water=0,wdays=0,lostDev=0,unrated=0,planAll=0,lostAll=0,langMin=0,langPlan=0,pastDays=0,focusMin=0;
+  const ws=parse(wk),today=todayStr(),days=[],types={},subs={};let spN=0,spMin=0,spX=0,plan=0,got=0,rated=0,n=0,tk=0,tkd=0,water=0,wdays=0,lostDev=0,unrated=0,planAll=0,lostAll=0,langMin=0,langPlan=0,pastDays=0,focusMin=0,autoMiss=0;
   for(let i=0;i<7;i++){const d=addDays(ws,i),k=ymd(d),past=k<=today&&k>=config.settings.start;
     let dp=0,dg=0;if(past)pastDays++;
     itemsFor(k).forEach(a=>{
@@ -1527,25 +1548,26 @@ function weekStats(wk){
       if(past&&a.off&&inScore(a.k))lostAll+=dur(a);
       if(a.off||!TY(a.k).track||!past)return;
       const h=dur(a),o=occ(k,a.id);n++;if(inScore(a.k))planAll+=h;if(o&&o.focus)focusMin+=o.focus.min||0;
-      if(a.k==="anglais"){langPlan+=h*60;if(o&&(o.st==="done"||o.st==="partial"))langMin+=o.lang&&o.lang.min?o.lang.min:Math.round(h*60*ST[o.st].w);}
+      if(a.k==="anglais"){langPlan+=h*60;if(o&&(o.st==="done"||o.st==="partial"))langMin+=o.lang&&o.lang.min?o.lang.min:Math.round(h*60*stW(o));}
       types[a.k]=types[a.k]||{plan:0,got:0,cnt:0,done:0,miss:0};types[a.k].plan+=h;types[a.k].cnt++;
-      if(o&&o.st){rated++;const g=h*ST[o.st].w;if(inScore(a.k)){plan+=h;dp+=h;got+=g;dg+=g;}types[a.k].got+=g;const sk=a.k+"|"+subOf(k,a);subs[sk]=(subs[sk]||0)+g;if(o.st==="done")types[a.k].done++;if(o.st==="missed")types[a.k].miss++;}else unrated++;
+      const st=effSt(k,o);if(o&&o.st)rated++;else{unrated++;if(st)autoMiss++;}
+      if(st){const g=h*stW(o,st);if(inScore(a.k)){plan+=h;dp+=h;got+=g;dg+=g;}types[a.k].got+=g;const sk=a.k+"|"+subOf(k,a);subs[sk]=(subs[sk]||0)+g;if(st==="done")types[a.k].done++;if(st==="missed")types[a.k].miss++;}
       if(o&&o.tasks){tk+=o.tasks.length;tkd+=o.tasks.filter(t=>t.d).length;}
     });
     const wv=(weeks[wk]&&weeks[wk].water[k])||0;if((past&&k!==today)||wv){water+=wv;wdays++;}
     if(past){itemsFor(k).forEach(a=>{if(a.k!=="sport"||a.off)return;const o=occ(k,a.id);
-        if(o&&(o.st==="done"||o.st==="partial")){spN++;spMin+=o.sport&&o.sport.min?o.sport.min:Math.round(dur(a)*60*ST[o.st].w);}});
+        if(o&&(o.st==="done"||o.st==="partial")){spN++;spMin+=o.sport&&o.sport.min?o.sport.min:Math.round(dur(a)*60*stW(o));}});
       (((weeks[wk]||{}).sport||{})[k]||[]).forEach(x=>{spN++;spX++;spMin+=x.min||0;});}
     days.push({d,k,past,pct:dp?Math.round(dg/dp*100):null,water:wv});
   }
-  return{days,types,subs,pct:plan?Math.round(got/plan*100):null,rated,n,unrated,tk,tkd,water:wdays?water/wdays:null,lostDev,spN,spMin,spX,planAll,got,lostAll,langMin,langPlan,pastDays,focusMin};
+  return{days,types,subs,pct:plan?Math.round(got/plan*100):null,rated,n,unrated,tk,tkd,water:wdays?water/wdays:null,lostDev,spN,spMin,spX,planAll,got,lostAll,langMin,langPlan,pastDays,focusMin,autoMiss};
 }
 // Tous les KPI d'une semaine : valeur, objectif (g), unité. Plus haut = mieux.
 const r1=x=>Math.round(x*10)/10;
 function kpiOf(wk){const s=weekStats(wk),G=config.settings,T=s.types,pc=(a,b)=>b?Math.round(a/b*100):null;
   const top=((weeks[wk]||{}).top)||{};let tn=0,td=0;s.days.forEach(x=>{if(!x.past)return;const tp=top[x.k];if(tp&&tp.t){tn++;if(tp.d)td++;}});
   const has=s.pastDays>0;
-  return{s,has,rated:s.rated>0,list:[
+  return{s,has,rated:s.rated+s.autoMiss>0,list:[
     {k:"pct",e:"📊",n:"Réalisation globale",u:"%",v:s.pct,g:80},
     {k:"dev",e:"💻",n:"Développement",u:"h",v:has&&T.dev?r1(T.dev.got):has&&s.rated?0:null,g:G.devGoal,fmt:v=>fmtH(v)},
     {k:"cours",e:"👨‍🏫",n:"Cours assurés",u:"%",v:T.cours&&T.cours.cnt?pc(T.cours.done,T.cours.cnt):null,g:100},
@@ -1567,7 +1589,7 @@ function renderAna(){
   const hist=[7,6,5,4,3,2,1,0].map(i=>{const k=ymd(addDays(ws,-7*i));const K=kpiOf(k);return{k,K,idx:indexOf(K)};});
   const cur=hist[7],K=cur.K,s=K.s,P=hist[6].K,prevW=hist.slice(0,7).filter(h=>h.idx!=null).slice(-3);
   $("aTitle").textContent=`Semaine du ${ws.getDate()} ${MONTHS[ws.getMonth()]} au ${we.getDate()} ${MONTHS[we.getMonth()]}`;
-  $("aSub").textContent=`${s.rated}/${s.n} activités notées`;
+  $("aSub").textContent=`${s.rated}/${s.n} activités notées`+(s.autoMiss?` · ${s.autoMiss} non notée${s.autoMiss>1?"s":""} = non faite${s.autoMiss>1?"s":""}`:"");
   const G=config.settings,dev=s.types.dev||{plan:0,got:0},sp=s.types.sport||{cnt:0,done:0};
   // ---- verdict : j'avance ou je recule ?
   {const v=$("aVerdict");const avg=prevW.length?Math.round(prevW.reduce((a,h)=>a+h.idx,0)/prevW.length):null;
@@ -1610,7 +1632,7 @@ function renderAna(){
   $("subsBox").innerHTML=se.length?se.map(([key,h])=>{const[k,sb]=key.split("|");const T=TY(k);return `<div class="trow"><span class="nm">${T.e} ${esc(sb||T.n)}</span><div class="track"><i style="width:${Math.round(h/mx*100)}%;background:${T.c}"></i></div><span class="vv">${fmtH(h)}</span></div>`;}).join(""):`<div class="empty">Choisis une catégorie ou un projet dans chaque créneau (ex. 💻 Ticketing) pour voir où passe ton temps.</div>`;
   // insights
   const L=[];
-  if(!s.rated)L.push("Aucune activité notée pour l'instant. Chaque soir, ouvre <b>Bilan</b> et coche ✅ / 🌓 / ❌ : 2 minutes suffisent.");
+  if(!s.rated&&!s.autoMiss)L.push("Aucune activité notée pour l'instant. Chaque soir, ouvre <b>Bilan</b> et coche ✅ / 🌓 / ❌ : 2 minutes suffisent.");
   else{
     const rd=s.days.filter(x=>x.pct!=null);if(rd.length>1){const best=rd.reduce((a,b)=>b.pct>a.pct?b:a),worst=rd.reduce((a,b)=>b.pct<a.pct?b:a);
       if(best.k!==worst.k)L.push(`Meilleur jour : <b>${DAYS[best.d.getDay()]}</b> (${best.pct}%). Le plus difficile : <b>${DAYS[worst.d.getDay()]}</b> (${worst.pct}%) — regarde si ce jour est trop chargé.`);}
@@ -1620,7 +1642,8 @@ function renderAna(){
     const dp=se.filter(([key])=>key.startsWith("dev|")&&key!=="dev|");if(dp.length)L.push(`💻 Projet principal cette semaine : <b>${esc(dp[0][0].split("|")[1])}</b> (${fmtH(dp[0][1])}).`);
     if(sp.cnt&&sp.done<sp.cnt)L.push(`🏃 Sport : ${sp.done}/${sp.cnt} séances prévues faites. Même 20 minutes comptent : mieux vaut court que rien.`);
     if(s.spMin&&s.spMin<G.sportMin)L.push(`⏱️ ${s.spMin} min de sport sur ${G.sportMin} visées : il manque ${G.sportMin-s.spMin} min (une marche rapide de 30 min suffit souvent).`);
-    if(s.unrated)L.push(`${s.unrated} activité${s.unrated>1?'s':''} pas encore notée${s.unrated>1?'s':''} : l'analyse sera plus juste après ton bilan.`);
+    if(s.autoMiss)L.push(`📋 ${s.autoMiss} activité${s.autoMiss>1?'s':''} jamais notée${s.autoMiss>1?'s':''} ${s.autoMiss>1?'comptent':'compte'} comme <b>non faite${s.autoMiss>1?'s':''}</b> (règle des ${OVERDUE_DAYS} jours). Note-les dans le Bilan si tu les as faites.`);
+    {const r=s.unrated-s.autoMiss,p=r>1;if(r>0)L.push(`${r} activité${p?'s':''} récente${p?'s':''} à noter : sans note, ${p?'elles compteront':'elle comptera'} comme non faite${p?'s':''} après ${OVERDUE_DAYS} jours.`);}
   }
   if(s.lostDev)L.push(`⚡ Imprévus / missions : ${fmtH(s.lostDev)} de dev annulées. Replace-les dans un créneau libre depuis l'onglet 🔄 Rattraper.`);
   if(s.water!=null&&s.water<config.settings.water-2)L.push(`💧 Tu bois en moyenne ${Math.round(s.water*10)/10} verres par jour. Ajoute un verre à chaque pause entre deux cours.`);
@@ -1740,11 +1763,12 @@ $("pModal").onclick=e=>{if(e.target.id==="pModal")$("pModal").classList.remove("
 const openCats=new Set();
 function renderSet(){
   const BUILTIN=Object.keys(DEF_TYPES);
-  $("catList").innerHTML=Object.entries(config.types).filter(([k])=>!["repas","sommeil"].includes(k)).map(([k,T])=>`
+  $("catList").innerHTML=Object.entries(config.types).filter(([k])=>k!=="sommeil").map(([k,T])=>`
     <details class="cat" data-k="${k}" ${openCats.has(k)?"open":""}>
       <summary><span class="dotc" style="background:${T.c}"></span>${esc(T.e)} ${esc(T.n)}<span class="cnt">${T.subs.length} catég. · ${T.lib.length} tâches</span></summary>
       <div class="body">
         <div class="inrow"><input class="em" data-f="e" value="${esc(T.e)}" aria-label="Emoji"><input class="grow" data-f="n" value="${esc(T.n)}" aria-label="Nom"><input type="color" data-f="c" value="${T.c}" aria-label="Couleur"></div>
+        <label class="setrow" style="border:0;padding:10px 0 0"><span>✅ À noter dans le bilan<small>${T.track?"rond ✅ 🌓 ❌, compté dans l'analyse et les rappels":"visible dans le planning, sans rien à noter ni rappel"}</small></span><input type="checkbox" data-track="1" ${T.track?"checked":""} style="width:24px;height:24px;accent-color:var(--ok)"></label>
         <div class="lab">${k==="anglais"?"Langues apprises":k==="dev"?"Projets":"Catégories / projets"}</div>
         <div class="pills">${T.subs.map((x,i)=>`<button class="pill" data-del="subs" data-i="${i}">${esc(x)}<span class="x">×</span></button>`).join("")||'<span class="empty">Aucune</span>'}</div>
         <div class="inrow"><input class="grow" data-add="subs" placeholder="${k==="anglais"?"Ajouter une langue (ex. Turc)":"Ajouter (ex. Nouveau projet)"}"><button class="btn" data-addbtn="subs">＋</button></div>
@@ -1760,6 +1784,7 @@ function renderSet(){
   $("catList").querySelectorAll("details.cat").forEach(d=>{
     const k=d.dataset.k,T=config.types[k];
     d.addEventListener("toggle",()=>{d.open?openCats.add(k):openCats.delete(k);});
+    const tk=d.querySelector("[data-track]");if(tk)tk.onchange=()=>{T.track=tk.checked;touch("config");renderAll();renderSet();toast(T.track?`${T.e} ${T.n} : à noter dans le bilan`:`${T.e} ${T.n} : plus rien à noter`);};
     d.querySelectorAll("[data-f]").forEach(inp=>inp.onchange=()=>{const v=inp.value.trim();if(!v)return;T[inp.dataset.f]=v;touch("config");renderAll();renderSet();});
     d.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{T[b.dataset.del].splice(+b.dataset.i,1);touch("config");renderSet();});
     const add=f=>{const inp=d.querySelector(`[data-add=${f}]`),v=inp.value.trim();if(!v)return;if(!T[f].includes(v))T[f].push(v);touch("config");renderSet();setTimeout(()=>{const n=$("catList").querySelector(`details[data-k=${k}] [data-add=${f}]`);n&&n.focus();},30);};
@@ -1917,7 +1942,7 @@ function renderWeekEd(){
   $("weDays").innerHTML=h;$("weDays").querySelectorAll("[data-d]").forEach(b=>b.onclick=()=>{weDay=+b.dataset.d;renderWeekEd();});
   const L=[...config.weekly[weDay]].filter(a=>!(a.k==="sommeil"&&a.s==="00:00")).sort((a,b)=>m(a.s)-m(b.s)),cl=clashes(config.weekly[weDay]);
   $("weTitle").textContent="Chaque "+DAYS[weDay].toLowerCase()+(isRest(weDay)?" · jour de repos":"");
-  const tf=tplFrom();$("weSub").textContent=`${L.length} créneau${L.length>1?'x':''}`+(tf&&tf>wsKey(todayStr())?` · s'applique dès le ${nice(parse(tf))}`:"");
+  const tf=tplFrom();$("weSub").textContent=`${L.length} créneau${L.length>1?'x':''}`+(tf&&tf>todayStr()?` · s'applique dès le ${nice(parse(tf))}`:"");
   $("weList").innerHTML=L.length?L.map(a=>{const T=TY(a.k),c=cl[a.id];return `<div class="item" data-id="${a.id}"><div class="bar" style="background:${T.c}"></div><div class="hrs">${a.s}<br>${showT(a.e)}</div>
     <div class="txt"><div class="t">${T.e} ${esc(a.t)}</div><div class="c"><span style="color:${T.c}">${esc(T.n+(a.sub?" · "+a.sub:""))}</span><span class="sub">${fmtH(dur(a))}</span>${c?`<span style="color:var(--ko)">⚠️ chevauche « ${esc(c)} »</span>`:''}</div></div><span class="stt">›</span></div>`;}).join("")
     :`<div class="card empty">Aucune activité ce jour. Ajoute un créneau ou copie un autre jour.</div>`;
@@ -1926,7 +1951,7 @@ function renderWeekEd(){
   $("weTot").innerHTML=te.length?te.map(([k,hh])=>`<div class="trow"><span class="nm">${TY(k).e} ${esc(TY(k).n)}</span><div class="track"><i style="width:${Math.round(hh/mx*100)}%;background:${TY(k).c}"></i></div><span class="vv">${fmtH(hh)}</span></div>`).join(""):`<div class="empty">Semaine vide.</div>`;
 }
 $("weAdd").onclick=()=>openNew({s:"09:00",e:"10:00",t:"",k:"dev",mode:"week",date:dateOfDow(weDay),title:`Ajouter un créneau · chaque ${DAYS[weDay].toLowerCase()}`});
-$("weClear").onclick=()=>choose(`Vider tous les ${DAYS[weDay].toLowerCase()}s ?`,"Toutes les activités de ce jour sont retirées de la semaine type (le sommeil est gardé). Les semaines passées ne changent pas.",
+$("weClear").onclick=()=>choose(`Vider tous les ${DAYS[weDay].toLowerCase()}s ?`,"Toutes les activités de ce jour sont retirées de la semaine type à partir d'aujourd'hui (le sommeil est gardé). Les jours passés ne changent pas.",
   [{l:"🗑️ Vider ce jour",danger:1,fn:()=>{snapWeekly();config.weekly[weDay]=config.weekly[weDay].filter(a=>a.k==="sommeil");touch("config");toast("Jour vidé");}}]);
 $("weCopy").onclick=()=>{let tgt=[],rep=true;const src=weDay;
   const draw=()=>{$("xBody").innerHTML=`<div class="lab">Vers quels jours ?</div><div class="dchips" id="xD"></div>
@@ -2042,7 +2067,7 @@ const WZ_RENDER={
     const ws0=wsKey(todayStr()),wks=[0,1,2,3,4,5,6,7].map(i=>{const d=addDays(parse(ws0),i*7),e=addDays(d,6);return{k:ymd(d),l:(i===0?"Cette semaine":i===1?"Semaine prochaine":"Semaine")+` · ${d.getDate()} ${MONTHS[d.getMonth()]} → ${e.getDate()} ${MONTHS[e.getMonth()]}`,ov:!!config.overrides[ymd(d)]};});
     const nx=wks[1];
     const SC=[["next","⏭️ Toutes les semaines à partir de la semaine prochaine",`Dès le ${nice(parse(nx.k))}. Cette semaine garde son planning actuel. (conseillé)`],
-      ["now","📅 Toutes les semaines à partir de cette semaine","Remplace aussi les jours restants de cette semaine."],
+      ["now","📅 Toutes les semaines à partir d'aujourd'hui","Remplace aussi les jours restants de cette semaine (les jours passés ne changent pas)."],
       ["one","1️⃣ Une seule semaine","Un planning spécial (examens, vacances, mission…). Les autres semaines gardent ta semaine type."]];
     return `<div class="sec-title" style="margin-top:0">📌 Appliquer ce planning à…</div>
       <div class="choice">${SC.map(([v,l,sub])=>`<button data-scope="${v}" style="${WZ.scope===v?'border:2px solid var(--accent2);background:#eff6ff':''}">${WZ.scope===v?'● ':'○ '}${l}<small>${sub}</small></button>`).join("")}</div>
@@ -2142,8 +2167,8 @@ function rangeStats(from,to){const today=todayStr(),st=config.settings.start;
   const r={h:{},focus:0,cours:0,sportN:0,sportMin:0,lang:0,water:0,wDays:0,waterOK:0,plan:0,got:0,tkd:0,top:0,bilan:0,elapsed:0,total:0};
   for(let d=parse(from);ymd(d)<=to;d=addDays(d,1)){const k=ymd(d);r.total++;if(k>today||k<st)continue;r.elapsed++;
     const wk=weeks[wsKey(k)]||{};let n=0,rated=0;
-    itemsFor(k).forEach(a=>{if(a.off||!TY(a.k).track)return;const o=occ(k,a.id),h=dur(a),w=o&&o.st?ST[o.st].w:0;n++;if(o&&o.st)rated++;
-      if(inScore(a.k)&&o&&o.st){r.plan+=h;r.got+=h*w;}r.h[a.k]=(r.h[a.k]||0)+h*w;
+    itemsFor(k).forEach(a=>{if(a.off||!TY(a.k).track)return;const o=occ(k,a.id),h=dur(a),st=effSt(k,o),w=st?stW(o,st):0;n++;if(o&&o.st)rated++;
+      if(inScore(a.k)&&st){r.plan+=h;r.got+=h*w;}r.h[a.k]=(r.h[a.k]||0)+h*w;
       if(a.k==="cours"&&o&&o.st==="done")r.cours++;
       if(a.k==="sport"&&w>0){r.sportN++;r.sportMin+=o.sport&&o.sport.min?o.sport.min:Math.round(h*60*w);}
       if(a.k==="anglais"&&w>0)r.lang+=o.lang&&o.lang.min?o.lang.min:Math.round(h*60*w);
@@ -2342,7 +2367,7 @@ function drawFocus(){const a=findItem(FX.date,FX.id);if(!a){FX=null;fxSave();hid
   // sous-tâches
   const tk=tasksOf(date,a);
   $("fxTasks").innerHTML=tk.length?tk.map((t,i)=>`<label class="${t.d?"d":""}"><input type="checkbox" data-ft="${i}" ${t.d?"checked":""}><span>${esc(t.t)}</span></label>`).join(""):"";
-  $("fxTasks").querySelectorAll("[data-ft]").forEach(c=>c.onchange=()=>{const o=occ(date,a.id,true);if(!o.tasks)o.tasks=tasksOf(date,a).map(x=>({...x}));o.tasks[+c.dataset.ft].d=c.checked;autoStatus(o);touch("weeks/"+wsKey(date));drawFocus();
+  $("fxTasks").querySelectorAll("[data-ft]").forEach(c=>c.onchange=()=>{const o=occ(date,a.id,true);if(!o.tasks)o.tasks=tasksOf(date,a).map(x=>({...x}));o.tasks[+c.dataset.ft].d=c.checked;autoStatus(o,date);touch("weeks/"+wsKey(date));drawFocus();
     if(o.tasks.every(x=>x.d))toast("☑ Toutes les sous-tâches sont faites !");});
   $("fxPause").textContent=FX.segStart?"⏸ Pause":"▶ Reprendre";
   tickFocus();}
